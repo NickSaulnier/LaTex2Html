@@ -53,6 +53,7 @@ export const MATH_STYLES = `
 .mj-sqrt-body {
   border-top: 0.08em solid currentColor;
   padding: 0 0.15em 0 0.05em;
+  margin-top: -2.68px;
 }
 .mj-scripts {
   display: inline-flex;
