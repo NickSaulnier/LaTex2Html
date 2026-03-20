@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family:
+          system-ui,
+          -apple-system,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: #f6f7f9;
+        color: #1a1a1a;
+      }
+      .demo {
+        max-width: 52rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      h1 {
+        font-size: 1.35rem;
+        font-weight: 650;
+        margin: 0 0 1rem;
+      }
+      label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+      }
+      #input {
+        width: 100%;
+        font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+        font-size: 0.9rem;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid #c8ccd4;
+        border-radius: 8px;
+        resize: vertical;
+        min-height: 8rem;
+        background: #fff;
+      }
+      .preview {
+        margin-top: 1.25rem;
+        padding: 1rem 1.1rem;
+        min-height: 3.5rem;
+        background: #fff;
+        border: 1px solid #dfe3ea;
+        border-radius: 8px;
+      }
+      .hint {
+        margin: 0.75rem 0 0;
+        font-size: 0.8rem;
+        color: #5c6473;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="demo">
+      <h1>LaTeX subset → HTML</h1>
+      <label for="input">Input</label>
+      <textarea id="input" rows="6" spellcheck="false"></textarea>
+      <div class="preview" id="preview" aria-live="polite"></div>
+      <p class="hint">Edit above; preview updates on change.</p>
+    </main>
+  </body>
+</html>
