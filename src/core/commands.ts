@@ -236,6 +236,7 @@ export const SYMBOL_MAP: Readonly<Record<string, string>> = {
   because: '∵',
 
   // --- Dots ---
+  dots: '…',
   ldots: '…',
   cdots: '⋯',
   vdots: '⋮',

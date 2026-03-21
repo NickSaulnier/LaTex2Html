@@ -124,6 +124,9 @@ export class Parser {
         if (env === 'cases' || env === 'dcases') {
           return this.parseCasesEnvironment(env);
         }
+        if (env === 'multline' || env === 'multline*') {
+          return this.parseMultlineEnvironment(env);
+        }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
       case 'frac':
@@ -534,6 +537,51 @@ export class Parser {
   private parseCasesEnvironment(env: 'cases' | 'dcases'): ExprNode {
     const rows = this.parseTabularMathEnvironment(env);
     return { type: 'cases', display: env === 'dcases', rows };
+  }
+
+  private parseMultlineEnvironment(env: 'multline' | 'multline*'): ExprNode {
+    const rows: ExprNodeList[] = [];
+    while (true) {
+      this.lex.skipSpace();
+      if (this.tryConsumeEndEnv(env)) return { type: 'multline', rows };
+      const line: ExprNodeList = [];
+      while (true) {
+        this.lex.skipSpace();
+        if (this.peekMultlineTerminator(env)) break;
+        const atom = this.parsePrimary();
+        line.push(this.parseScripts(atom));
+      }
+      rows.push(line);
+      this.skipLexSpaceUnlessQueued();
+      if (this.tryConsumeEndEnv(env)) {
+        return { type: 'multline', rows };
+      }
+      this.skipLexSpaceUnlessQueued();
+      const t = this.peek();
+      if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+        this.take();
+        continue;
+      }
+      throw this.err(`Expected \\\\\\\\ or \\\\end{${env}}`);
+    }
+  }
+
+  private peekMultlineTerminator(envName: string): boolean {
+    this.lex.skipSpace();
+    const mark = this.lex.mark();
+    const t = this.peek();
+    if (t.kind === 'command' && t.name === Parser.rowBreakCommand) return true;
+    if (t.kind === 'eof') return true;
+    if (t.kind === 'command' && t.name === 'end') {
+      this.take();
+      const ok = this.verifyEndEnvNameHere(envName);
+      this.queue = null;
+      this.lex.jump(mark);
+      return ok;
+    }
+    this.queue = null;
+    this.lex.jump(mark);
+    return false;
   }
 
   private readBalancedText(): string {

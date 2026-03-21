@@ -213,6 +213,17 @@ export function emitNode(node: ExprNode): string {
       const tableCls = node.display ? 'mj-cases mj-dcases' : 'mj-cases';
       return `<span class="mj-cases-wrap"><span class="mj-cases-bracket-l" aria-hidden="true">${casesBraceSvg}</span><table class="${tableCls}" role="presentation">${colgroup}${rowsHtml}</table></span>`;
     }
+    case 'multline': {
+      const last = node.rows.length - 1;
+      const linesHtml = node.rows
+        .map((row, i) => {
+          const cls =
+            i === 0 ? 'mj-multline-first' : i === last ? 'mj-multline-last' : 'mj-multline-mid';
+          return `<span class="mj-multline-row ${cls}">${emitNodes(row)}</span>`;
+        })
+        .join('');
+      return `<span class="mj-multline">${linesHtml}</span>`;
+    }
     case 'displayMath':
       return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;
     case 'leftRight':

@@ -423,4 +423,22 @@ export const MATH_STYLES = `
   flex-shrink: 0;
   margin: 0 0.06em;
 }
+/* multline: long equation across multiple lines. */
+.mj-multline {
+  display: block;
+  margin: 0.65em 0;
+}
+.mj-multline-row {
+  display: block;
+  padding: 0.15em 0;
+}
+.mj-multline-first {
+  text-align: left;
+}
+.mj-multline-mid {
+  text-align: center;
+}
+.mj-multline-last {
+  text-align: right;
+}
 `.trim();
