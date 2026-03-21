@@ -285,6 +285,59 @@ export const MATH_STYLES = `
   box-sizing: border-box;
   pointer-events: none;
 }
+/* \\bar{\\psi}: horizontal rule just above the argument. */
+.mj-bar {
+  position: relative;
+  display: inline-block;
+  padding-top: 0.14em;
+  line-height: 1;
+}
+.mj-bar::after {
+  content: "";
+  position: absolute;
+  left: -0.02em;
+  right: -0.02em;
+  top: 0.04em;
+  border-top: 0.07em solid currentColor;
+  pointer-events: none;
+}
+/* \\slashed{D}: diagonal stroke through the symbol (Feynman / covariant derivative). */
+.mj-slashed {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+.mj-slashed::after {
+  content: "";
+  position: absolute;
+  left: -0.06em;
+  right: -0.06em;
+  top: 50%;
+  height: 0;
+  border-top: 0.075em solid currentColor;
+  transform: translateY(-50%) rotate(-52deg);
+  transform-origin: center center;
+  pointer-events: none;
+}
+/* \\cancel{…}: diagonal strike bottom-left → top-right (forward slash over the glyph). */
+.mj-cancel {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+.mj-cancel::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(50% - 0.09em);
+  width: 1.02em;
+  margin-left: -0.51em;
+  height: 0;
+  border-top: 0.075em solid currentColor;
+  transform: translateY(-50%) rotate(-52deg);
+  transform-origin: center center;
+  pointer-events: none;
+}
 /* \\left\\langle / \\right\\rangle: match bar delimiters, slightly larger for Dirac bras/kets. */
 .mj-delim-langle,
 .mj-delim-rangle {

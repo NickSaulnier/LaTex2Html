@@ -196,6 +196,12 @@ export function emitNode(node: ExprNode): string {
       return `<span class="mj-hat">${emitNodes(node.body)}</span>`;
     case 'dot':
       return `<span class="mj-dot">${emitNodes(node.body)}</span>`;
+    case 'bar':
+      return `<span class="mj-bar">${emitNodes(node.body)}</span>`;
+    case 'slashed':
+      return `<span class="mj-slashed">${emitNodes(node.body)}</span>`;
+    case 'cancel':
+      return `<span class="mj-cancel">${emitNodes(node.body)}</span>`;
     case 'aligned': {
       const rowsHtml = node.rows
         .map((row) => {

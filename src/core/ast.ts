@@ -10,6 +10,12 @@ export type ExprNode =
   | { type: 'hat'; body: ExprNode[] }
   /** `\dot{x}` — dot above (time derivative, etc.). */
   | { type: 'dot'; body: ExprNode[] }
+  /** `\bar{x}` — overline (e.g. `\bar{\psi}`). */
+  | { type: 'bar'; body: ExprNode[] }
+  /** `\slashed{D}` — Feynman slash through a symbol (Dirac operator). */
+  | { type: 'slashed'; body: ExprNode[] }
+  /** `\cancel{…}` — diagonal strike through an expression (cancel package). */
+  | { type: 'cancel'; body: ExprNode[] }
   | { type: 'styled'; style: 'mathrm' | 'text' | 'mathbf' | 'mathcal' | 'mathopMin'; text: string }
   | { type: 'scripts'; base: ExprNode; sub?: ExprNode; sup?: ExprNode }
   /** amsmath-style rows; each row is columns split by `&`, rows by `\\` (cell = `ExprNode[]`). */

@@ -168,6 +168,27 @@ export class Parser {
         this.expectKind('rbrace');
         return { type: 'dot', body };
       }
+      case 'bar': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'bar', body };
+      }
+      case 'slashed': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'slashed', body };
+      }
+      case 'cancel': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'cancel', body };
+      }
       case 'mathrm':
       case 'rm': {
         const raw = this.readBalancedText();
