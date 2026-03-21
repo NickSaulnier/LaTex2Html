@@ -139,6 +139,20 @@ export class Parser {
         const raw = this.readBalancedText();
         return { type: 'styled', style: 'text', text: raw };
       }
+      case 'lim':
+        return { type: 'styled', style: 'mathrm', text: 'lim' };
+      case 'limsup':
+        return { type: 'styled', style: 'mathrm', text: 'lim sup' };
+      case 'liminf':
+        return { type: 'styled', style: 'mathrm', text: 'lim inf' };
+      case 'max':
+      case 'min':
+      case 'sup':
+      case 'inf':
+      case 'det':
+      case 'gcd':
+      case 'Pr':
+        return { type: 'styled', style: 'mathrm', text: name };
       default: {
         const mapped = SYMBOL_MAP[name];
         if (mapped !== undefined) {

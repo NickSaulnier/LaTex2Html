@@ -20,6 +20,35 @@ function isLimitOperatorBase(n: ExprNode): boolean {
   return n.type === 'symbol' && LIMIT_OP_SYMBOLS.has(n.text);
 }
 
+/** Upright math operators whose subscripts (and superscripts) sit below/above the name, not beside. */
+const ROMAN_MATHOP_WITH_LIMITS = new Set([
+  'lim',
+  'lim sup',
+  'lim inf',
+  'max',
+  'min',
+  'sup',
+  'inf',
+  'det',
+  'gcd',
+  'Pr',
+]);
+
+function isRomanMathopWithLimits(n: ExprNode): boolean {
+  if (n.type !== 'styled' || n.style !== 'mathrm') {
+    return false;
+  }
+  return ROMAN_MATHOP_WITH_LIMITS.has(n.text);
+}
+
+function isLimopBase(n: ExprNode): boolean {
+  return (
+    isLimitOperatorBase(n) ||
+    isRomanMathopWithLimits(n) ||
+    (n.type === 'symbol' && n.text === '\\lim')
+  );
+}
+
 const INTEGRAL_SYMBOLS = new Set(['∫', '∮', '∬', '∭']);
 
 function isIntegralBase(n: ExprNode): boolean {
@@ -76,7 +105,7 @@ export function emitNode(node: ExprNode): string {
       return `<span class="mj-aligned-wrap"><table class="mj-aligned" role="presentation">${rowsHtml}</table></span>`;
     }
     case 'scripts': {
-      if (isLimitOperatorBase(node.base)) {
+      if (isLimopBase(node.base)) {
         const supHtml = node.sup
           ? `<span class="mj-limop-sup">${emitNode(node.sup)}</span>`
           : '<span class="mj-limop-sup mj-limop-ph" aria-hidden="true"></span>';
