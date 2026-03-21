@@ -72,7 +72,32 @@ export const MATH_STYLES = `
   align-items: flex-end;
   gap: 0.02em;
 }
-/* ∑ ∫ ∏ — limits stacked above / below the operator (not beside). */
+/* ∫ limits beside: span full glyph height; sup/sub align to top/bottom (not letter-style offsets). */
+.mj-int-scripts {
+  align-items: stretch;
+}
+.mj-int-scripts > .mj-scripts-base {
+  display: inline-flex;
+  align-items: flex-start;
+  line-height: 1;
+  font-size: 1.35em;
+}
+.mj-int-scripts .mj-scripts {
+  justify-content: space-between;
+  align-self: stretch;
+}
+.mj-int-scripts .mj-scripts:not(:has(.mj-sub)) {
+  justify-content: flex-start;
+}
+.mj-int-scripts .mj-scripts:not(:has(.mj-sup)) {
+  justify-content: flex-end;
+}
+.mj-int-scripts .mj-sup,
+.mj-int-scripts .mj-sub {
+  position: static;
+  top: auto;
+}
+/* ∑ ∏ — limits stacked above / below the operator; ∫ uses .mj-scripts beside the symbol. */
 .mj-limop {
   display: inline-flex;
   flex-direction: column;

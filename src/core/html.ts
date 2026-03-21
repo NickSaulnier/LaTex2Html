@@ -1,15 +1,11 @@
 import type { ExprNode, ExprNodeList } from './ast.js';
 
-/** Large operators that use limits above/below in display-style layout. */
-/** Unicode glyphs that use limits above/below (\\sum-style), not beside. */
+/** Unicode glyphs that use limits stacked above/below (\\sum-style), not beside the operator.
+ * Integrals (∫ ∮ ∬ ∭) use normal sub/sup to the right like inline math. */
 const LIMIT_OP_SYMBOLS = new Set([
   '∑',
   '∏',
   '∐',
-  '∫',
-  '∮',
-  '∬',
-  '∭',
   '⋃',
   '⋂',
   '⨄',
@@ -22,6 +18,12 @@ const LIMIT_OP_SYMBOLS = new Set([
 
 function isLimitOperatorBase(n: ExprNode): boolean {
   return n.type === 'symbol' && LIMIT_OP_SYMBOLS.has(n.text);
+}
+
+const INTEGRAL_SYMBOLS = new Set(['∫', '∮', '∬', '∭']);
+
+function isIntegralBase(n: ExprNode): boolean {
+  return n.type === 'symbol' && INTEGRAL_SYMBOLS.has(n.text);
 }
 
 function escapeHtml(s: string): string {
@@ -89,7 +91,8 @@ export function emitNode(node: ExprNode): string {
         sub || sup
           ? `<span class="mj-scripts">${sup}${sub}</span>`
           : '<span class="mj-scripts"></span>';
-      return `<span class="mj-scripts-outer"><span class="mj-scripts-base">${emitNode(node.base)}</span>${stack}</span>`;
+      const outerCls = isIntegralBase(node.base) ? 'mj-scripts-outer mj-int-scripts' : 'mj-scripts-outer';
+      return `<span class="${outerCls}"><span class="mj-scripts-base">${emitNode(node.base)}</span>${stack}</span>`;
     }
     default: {
       const _n: never = node;
