@@ -63,6 +63,45 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** `\\left` / `\\right` delimiter span (empty elements drawn via CSS borders). */
+function leftDelimiterHtml(d: string): string {
+  switch (d) {
+    case '.':
+      return '<span class="mj-delim mj-delim-l mj-delim-dot" aria-hidden="true"></span>';
+    case '(':
+      return '<span class="mj-delim mj-delim-l mj-delim-paren-l" aria-hidden="true"></span>';
+    case '[':
+      return '<span class="mj-matrix-bracket mj-matrix-bracket-l" aria-hidden="true"></span>';
+    case '{':
+      return `<span class="mj-delim mj-delim-l mj-delim-curly" aria-hidden="true">${escapeHtml('{')}</span>`;
+    case '|':
+      return '<span class="mj-delim mj-delim-l mj-delim-bar" aria-hidden="true"></span>';
+    case '<':
+      return `<span class="mj-delim mj-delim-l mj-delim-angle" aria-hidden="true">${escapeHtml('<')}</span>`;
+    default:
+      return `<span class="mj-delim mj-delim-l mj-delim-fallback" aria-hidden="true">${escapeHtml(d)}</span>`;
+  }
+}
+
+function rightDelimiterHtml(d: string): string {
+  switch (d) {
+    case '.':
+      return '<span class="mj-delim mj-delim-r mj-delim-dot" aria-hidden="true"></span>';
+    case ')':
+      return '<span class="mj-delim mj-delim-r mj-delim-paren-r" aria-hidden="true"></span>';
+    case ']':
+      return '<span class="mj-matrix-bracket mj-matrix-bracket-r" aria-hidden="true"></span>';
+    case '}':
+      return `<span class="mj-delim mj-delim-r mj-delim-curly" aria-hidden="true">${escapeHtml('}')}</span>`;
+    case '|':
+      return '<span class="mj-delim mj-delim-r mj-delim-bar" aria-hidden="true"></span>';
+    case '>':
+      return `<span class="mj-delim mj-delim-r mj-delim-angle" aria-hidden="true">${escapeHtml('>')}</span>`;
+    default:
+      return `<span class="mj-delim mj-delim-r mj-delim-fallback" aria-hidden="true">${escapeHtml(d)}</span>`;
+  }
+}
+
 export function emitNodes(nodes: ExprNodeList): string {
   return nodes.map(emitNode).join('');
 }
@@ -117,6 +156,8 @@ export function emitNode(node: ExprNode): string {
     }
     case 'displayMath':
       return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;
+    case 'leftRight':
+      return `<span class="mj-left-right">${leftDelimiterHtml(node.left)}<span class="mj-delim-body">${emitNodes(node.body)}</span>${rightDelimiterHtml(node.right)}</span>`;
     case 'scripts': {
       if (isLimopBase(node.base)) {
         const supHtml = node.sup

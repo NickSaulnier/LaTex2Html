@@ -8,7 +8,7 @@
     "build": "npm run build:cli && npm run build:browser",
     "build:cli": "tsc -p tsconfig.cli.json",
     "build:browser": "webpack --mode production",
-    "test": "npm run build:cli && node --test test/parser-aligned.test.mjs test/lexer.test.mjs test/html-integral.test.mjs test/html-lim.test.mjs test/html-display-brackets.test.mjs test/html-bmatrix.test.mjs",
+    "test": "npm run build:cli && node --test test/parser-aligned.test.mjs test/lexer.test.mjs test/html-integral.test.mjs test/html-lim.test.mjs test/html-display-brackets.test.mjs test/html-bmatrix.test.mjs test/html-leftright.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

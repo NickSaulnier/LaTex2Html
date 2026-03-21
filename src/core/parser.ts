@@ -165,6 +165,19 @@ export class Parser {
         if (inner.length === 1) return inner[0]!;
         return { type: 'group', children: inner };
       }
+      case 'left': {
+        const left = this.readLeftRightDelimiter();
+        const body = this.parseExprListUntilRight();
+        this.lex.skipSpace();
+        const tr = this.take();
+        if (tr.kind !== 'command' || tr.name !== 'right') {
+          throw this.err('Expected \\\\right after \\\\left …');
+        }
+        const right = this.readLeftRightDelimiter();
+        return { type: 'leftRight', left, right, body };
+      }
+      case 'right':
+        throw this.err('Unexpected \\\\right without matching \\\\left');
       case ']':
         throw this.err('Unexpected `\\\\]` without matching `\\\\[`');
       case ')':
@@ -201,6 +214,63 @@ export class Parser {
       const t = this.peek();
       if (t.kind === 'rbracket') break;
       if (t.kind === 'eof') throw this.err('Unclosed `[` in `\\sqrt` index');
+      const atom = this.parsePrimary();
+      out.push(this.parseScripts(atom));
+    }
+    return out;
+  }
+
+  /** Single-char delimiter token after `\\left` / `\\right` (plus `\\{`, `\\}`, bare `{` / `}`). */
+  private readLeftRightDelimiter(): string {
+    this.lex.skipSpace();
+    const t = this.peek();
+    if (t.kind === 'text' && t.value.length === 1) {
+      const c = t.value;
+      if ('()[]|.<>'.includes(c)) {
+        this.take();
+        return c;
+      }
+    }
+    if (t.kind === 'lbracket') {
+      this.take();
+      return '[';
+    }
+    if (t.kind === 'rbracket') {
+      this.take();
+      return ']';
+    }
+    if (t.kind === 'lbrace') {
+      this.take();
+      return '{';
+    }
+    if (t.kind === 'rbrace') {
+      this.take();
+      return '}';
+    }
+    if (t.kind === 'command' && (t.name === '{' || t.name === '}' || t.name === '|')) {
+      this.take();
+      if (t.name === '{') return '{';
+      if (t.name === '}') return '}';
+      return '|';
+    }
+    throw this.err('Expected delimiter after \\\\left / \\\\right (e.g. (, ), [, ], {, }, |, .)');
+  }
+
+  /** Math until matching `\\right` (nested `\\left…\\right` consumed as one primary). */
+  private parseExprListUntilRight(): ExprNodeList {
+    const out: ExprNodeList = [];
+    while (true) {
+      this.lex.skipSpace();
+      const t = this.peek();
+      if (t.kind === 'eof') {
+        throw this.err('Unclosed \\\\left: expected \\\\right');
+      }
+      if (t.kind === 'command' && t.name === 'right') {
+        break;
+      }
+      if (t.kind === 'ampersand') {
+        throw this.err('Align/tab `&` is not supported in this subset');
+      }
       const atom = this.parsePrimary();
       out.push(this.parseScripts(atom));
     }

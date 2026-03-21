@@ -217,4 +217,75 @@ export const MATH_STYLES = `
   vertical-align: baseline;
   padding: 0.12em 0.45em;
 }
+.mj-left-right {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: stretch;
+  vertical-align: middle;
+}
+.mj-delim-body {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 auto;
+}
+.mj-delim-dot {
+  width: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  align-self: center;
+  flex-shrink: 0;
+}
+.mj-delim-paren-l {
+  width: 0.38em;
+  flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+  border-left: 0.085em solid currentColor;
+  border-top: 0.085em solid currentColor;
+  border-bottom: 0.085em solid currentColor;
+  border-radius: 0.62em 0 0 0.62em;
+}
+.mj-delim-paren-r {
+  width: 0.38em;
+  flex-shrink: 0;
+  align-self: stretch;
+  box-sizing: border-box;
+  border-right: 0.085em solid currentColor;
+  border-top: 0.085em solid currentColor;
+  border-bottom: 0.085em solid currentColor;
+  border-radius: 0 0.62em 0.62em 0;
+}
+.mj-delim-bar.mj-delim-l {
+  width: 0;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-left: 0.08em solid currentColor;
+  box-sizing: border-box;
+  margin-right: 0.06em;
+}
+.mj-delim-bar.mj-delim-r {
+  width: 0;
+  flex-shrink: 0;
+  align-self: stretch;
+  border-right: 0.08em solid currentColor;
+  box-sizing: border-box;
+  margin-left: 0.06em;
+}
+.mj-delim-curly,
+.mj-delim-angle {
+  align-self: center;
+  flex-shrink: 0;
+  font-size: 1.8em;
+  line-height: 1;
+  font-weight: 400;
+  color: currentColor;
+  margin: 0 0.05em;
+}
+.mj-delim-fallback {
+  align-self: center;
+  flex-shrink: 0;
+  margin: 0 0.06em;
+}
 `.trim();

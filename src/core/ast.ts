@@ -11,6 +11,8 @@ export type ExprNode =
   /** `\\begin{bmatrix} … \\end{bmatrix}`; `rows[row][col]` is a cell expression list. */
   | { type: 'matrix'; kind: 'bmatrix'; rows: ExprNode[][][] }
   /** LaTeX `\\[ … \\]` display math: block layout in HTML. */
-  | { type: 'displayMath'; children: ExprNode[] };
+  | { type: 'displayMath'; children: ExprNode[] }
+  /** `\\left` … `\\right` stretchy delimiters; `left`/`right` are one-char keys e.g. `(`, `)`, `{`, `}`, `.` (empty). */
+  | { type: 'leftRight'; left: string; right: string; body: ExprNode[] };
 
 export type ExprNodeList = ExprNode[];

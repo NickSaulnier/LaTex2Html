@@ -35,6 +35,7 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 - **Grouping**: `{…}`.
 - **Delimiters**: `\[ … \]` for display-style math (centered block); `\( … \)` groups the inner math like `{…}` without changing layout.
 - **Matrices**: `\begin{bmatrix} … \end{bmatrix}` with `&` between columns and `\\` between rows (same cell rules as `aligned`).
+- **Delimiters**: `\left` … `\right` with a following delimiter (`( ) [ ] \{ \} | . < >`); the body grows with content (e.g. tall fractions). Use `\left.` or `\right.` for an empty side.
 - **Scripts**: `^` and `_` with a braced or atomic operand (no double sub/sup on the same base without grouping).
 - **Fractions**: `\frac{numerator}{denominator}`.
 - **Roots**: `\sqrt{x}`, `\sqrt[n]{x}`.
