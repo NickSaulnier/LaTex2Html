@@ -55,6 +55,17 @@ function isIntegralBase(n: ExprNode): boolean {
   return n.type === 'symbol' && INTEGRAL_SYMBOLS.has(n.text);
 }
 
+const MATHCAL_MAP: Record<string, string> = {
+  A: '𝒜', B: 'ℬ', C: '𝒞', D: '𝒟', E: 'ℰ', F: 'ℱ', G: '𝒢', H: 'ℋ',
+  I: 'ℐ', J: '𝒥', K: '𝒦', L: 'ℒ', M: 'ℳ', N: '𝒩', O: '𝒪', P: '𝒫',
+  Q: '𝒬', R: 'ℛ', S: '𝒮', T: '𝒯', U: '𝒰', V: '𝒱', W: '𝒲', X: '𝒳',
+  Y: '𝒴', Z: '𝒵',
+};
+
+function toMathcal(s: string): string {
+  return [...s].map((c) => MATHCAL_MAP[c] ?? c).join('');
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, '&amp;')
@@ -161,9 +172,15 @@ export function emitNode(node: ExprNode): string {
       return `<span class="mj-sqrt">${idx}${hook}${body}</span>`;
     }
     case 'styled': {
-      const cls =
-        node.style === 'mathbf' ? 'mj-mathbf' : node.style === 'mathrm' ? 'mj-mathrm' : 'mj-text';
-      return `<span class="${cls}">${escapeHtml(node.text)}</span>`;
+      const clsMap: Record<string, string> = {
+        mathrm: 'mj-mathrm',
+        text: 'mj-text',
+        mathbf: 'mj-mathbf',
+        mathcal: 'mj-mathcal',
+      };
+      const cls = clsMap[node.style] ?? 'mj-text';
+      const rendered = node.style === 'mathcal' ? toMathcal(node.text) : escapeHtml(node.text);
+      return `<span class="${cls}">${rendered}</span>`;
     }
     case 'vec':
       return `<span class="mj-vec">${emitNodes(node.body)}</span>`;

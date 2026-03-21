@@ -164,6 +164,17 @@ export class Parser {
         const raw = this.readBalancedText();
         return { type: 'styled', style: 'mathbf', text: raw };
       }
+      case 'mathcal':
+      case 'cal': {
+        const raw = this.readBalancedText();
+        return { type: 'styled', style: 'mathcal', text: raw };
+      }
+      case ',':
+        return { type: 'space' };
+      case ';':
+      case ':':
+      case '!':
+        return { type: 'space' };
       case 'text': {
         const raw = this.readBalancedText();
         return { type: 'styled', style: 'text', text: raw };

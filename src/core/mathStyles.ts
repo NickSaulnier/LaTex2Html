@@ -211,6 +211,10 @@ export const MATH_STYLES = `
   font-weight: bold;
   font-style: normal;
 }
+.mj-mathcal {
+  font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", serif;
+  font-style: italic;
+}
 /* \\vec{v}: arrow above (physics vector). */
 .mj-vec {
   position: relative;
