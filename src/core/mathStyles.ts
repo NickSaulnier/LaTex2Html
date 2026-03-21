@@ -7,6 +7,15 @@ export const MATH_STYLES = `
   display: inline-block;
   vertical-align: middle;
 }
+.mj-math:has(> .mj-math-display:only-child) {
+  display: block;
+  width: 100%;
+}
+.mj-math-display {
+  display: block;
+  text-align: center;
+  margin: 0.65em 0;
+}
 .mj-row {
   display: inline-flex;
   flex-direction: row;

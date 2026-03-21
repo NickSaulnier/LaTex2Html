@@ -33,6 +33,7 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 - **Letters / digits**: runs of Latin letters form one symbol; runs of digits form one number token; other characters are single symbols (e.g. `+`, `(`, `)`).
 - **Whitespace**: spaces are optional between atoms; rendered as a small gap where explicit space tokens appear.
 - **Grouping**: `{…}`.
+- **Delimiters**: `\[ … \]` for display-style math (centered block); `\( … \)` groups the inner math like `{…}` without changing layout.
 - **Scripts**: `^` and `_` with a braced or atomic operand (no double sub/sup on the same base without grouping).
 - **Fractions**: `\frac{numerator}{denominator}`.
 - **Roots**: `\sqrt{x}`, `\sqrt[n]{x}`.

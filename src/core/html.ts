@@ -104,6 +104,8 @@ export function emitNode(node: ExprNode): string {
         .join('');
       return `<span class="mj-aligned-wrap"><table class="mj-aligned" role="presentation">${rowsHtml}</table></span>`;
     }
+    case 'displayMath':
+      return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;
     case 'scripts': {
       if (isLimopBase(node.base)) {
         const supHtml = node.sup

@@ -7,6 +7,8 @@ export type ExprNode =
   | { type: 'styled'; style: 'mathrm' | 'text'; text: string }
   | { type: 'scripts'; base: ExprNode; sub?: ExprNode; sup?: ExprNode }
   /** amsmath-style rows; each row is columns split by `&`, rows by `\\`. */
-  | { type: 'aligned'; rows: ExprNode[][][] };
+  | { type: 'aligned'; rows: ExprNode[][][] }
+  /** LaTeX `\\[ … \\]` display math: block layout in HTML. */
+  | { type: 'displayMath'; children: ExprNode[] };
 
 export type ExprNodeList = ExprNode[];

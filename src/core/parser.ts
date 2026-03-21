@@ -153,6 +153,19 @@ export class Parser {
       case 'gcd':
       case 'Pr':
         return { type: 'styled', style: 'mathrm', text: name };
+      case '[': {
+        const children = this.parseExprListUntilDelimiterCommand(']');
+        return { type: 'displayMath', children };
+      }
+      case '(': {
+        const inner = this.parseExprListUntilDelimiterCommand(')');
+        if (inner.length === 1) return inner[0]!;
+        return { type: 'group', children: inner };
+      }
+      case ']':
+        throw this.err('Unexpected `\\\\]` without matching `\\\\[`');
+      case ')':
+        throw this.err('Unexpected `\\\\)` without matching `\\\\(`');
       default: {
         const mapped = SYMBOL_MAP[name];
         if (mapped !== undefined) {
@@ -189,6 +202,31 @@ export class Parser {
       out.push(this.parseScripts(atom));
     }
     return out;
+  }
+
+  /**
+   * Parse math until `\\{endName}` (e.g. `\\]` after `\\[`, `\\)` after `\\(`).
+   * Consumes the closing delimiter command.
+   */
+  private parseExprListUntilDelimiterCommand(endName: string): ExprNodeList {
+    const out: ExprNodeList = [];
+    while (true) {
+      this.lex.skipSpace();
+      const t = this.peek();
+      if (t.kind === 'eof') {
+        const hint = endName === ']' ? '`\\\\[`' : '`\\\\(`';
+        throw this.err(`Unclosed ${hint}: expected \\\\${endName}`);
+      }
+      if (t.kind === 'command' && t.name === endName) {
+        this.take();
+        return out;
+      }
+      if (t.kind === 'ampersand') {
+        throw this.err('Align/tab `&` is not supported in this subset');
+      }
+      const atom = this.parsePrimary();
+      out.push(this.parseScripts(atom));
+    }
   }
 
   /** `\begin{aligned}` / `\end{aligned}` env name in `{...}`. */
