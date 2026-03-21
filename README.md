@@ -26,7 +26,7 @@ A **minimal** article pipeline runs: strips `%` line comments, reads `\title`, `
 - Plain paragraphs split on blank lines
 - List environments: `\begin{itemize} … \item … \end{itemize}`, `enumerate`, and `description` (with optional `\item[label]`); nested lists of the same type are supported
 
-Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom packages, full `amsmath`, etc.). A few `amsmath`-like constructs are supported in math mode (`aligned`, `align`, `bmatrix`); see the **Math mode** section.
+Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom packages, full `amsmath`, etc.). A few `amsmath`-like constructs are supported in math mode (`aligned`, `align`, `bmatrix`, `cases`); see the **Math mode** section.
 
 ### Math mode (default when there is no `\documentclass`)
 
@@ -36,6 +36,7 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 - **Delimiters**: `\[ … \]` for display-style math (centered block); `\( … \)` groups the inner math like `{…}` without changing layout.
 - **Aligned equations**: `\begin{aligned} … \end{aligned}` and `\begin{align} … \end{align}` with `&` between columns and `\\` between rows (e.g. `a &= b && \text{note}` for extra columns before a comment).
 - **Matrices**: `\begin{bmatrix} … \end{bmatrix}` with `&` between columns and `\\` between rows (same cell rules as `aligned`).
+- **Piecewise (`cases`)**: `\begin{cases} … \end{cases}` with `&` separating the value and condition on each row, `\\` between rows; left brace is drawn to match the block height.
 - **Delimiters**: `\left` … `\right` with a following delimiter (`( ) [ ] \{ \} | . < >`); the body grows with content (e.g. tall fractions). Use `\left.` or `\right.` for an empty side.
 - **Scripts**: `^` and `_` with a braced or atomic operand (no double sub/sup on the same base without grouping).
 - **Fractions**: `\frac{numerator}{denominator}`.
@@ -44,7 +45,7 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 - **Text**: `\mathrm{…}`, `\rm{…}`, `\text{…}` (balanced braces inside; `\` starts a command name that is copied literally into the text).
 - **Symbol commands**: a large set of backslash commands map to Unicode (Greek, Hebrew, binary operators, relations, negated relations, arrows, big operators, dots, logic, etc.). See [`src/core/commands.ts`](src/core/commands.ts). Coverage is aligned with common “symbols.pdf”-style tables (e.g. [Rice CMOR LaTeX symbols PDF](https://www.cmor-faculty.rice.edu/~heinken/latex/symbols.pdf)). Unknown `\foo` is rendered as a literal `\foo` symbol.
 
-**Not supported**: `\usepackage`, custom macros, most environments beyond `aligned` / `align` / `bmatrix`, `\not` overlay, stretchable delimiters, many font packages (e.g. full `\mathbb`), and accents like `\hat{ }` beyond what maps to a single Unicode glyph. Tab `&` is only allowed inside `aligned`, `align`, and matrix environments.
+**Not supported**: `\usepackage`, custom macros, most environments beyond `aligned` / `align` / `bmatrix` / `cases`, `\not` overlay, stretchable delimiters, many font packages (e.g. full `\mathbb`), and accents like `\hat{ }` beyond what maps to a single Unicode glyph. Tab `&` is only allowed inside `aligned`, `align`, matrix, and `cases` environments.
 
 ## Commands
 

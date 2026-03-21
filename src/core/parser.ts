@@ -121,6 +121,9 @@ export class Parser {
         if (env === 'bmatrix') {
           return this.parseMatrixEnvironment('bmatrix');
         }
+        if (env === 'cases') {
+          return this.parseCasesEnvironment();
+        }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
       case 'frac': {
@@ -504,6 +507,11 @@ export class Parser {
   private parseMatrixEnvironment(kind: 'bmatrix'): ExprNode {
     const rows = this.parseTabularMathEnvironment(kind);
     return { type: 'matrix', kind, rows };
+  }
+
+  private parseCasesEnvironment(): ExprNode {
+    const rows = this.parseTabularMathEnvironment('cases');
+    return { type: 'cases', rows };
   }
 
   private readBalancedText(): string {

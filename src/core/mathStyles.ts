@@ -16,6 +16,14 @@ export const MATH_STYLES = `
   text-align: center;
   margin: 0.65em 0;
 }
+/* Piecewise with cases: vertically center the prefix (e.g. f(n) =) with the tall brace block. */
+.mj-math-display:has(.mj-cases-wrap) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
 .mj-row {
   display: inline-flex;
   flex-direction: row;
@@ -262,6 +270,66 @@ export const MATH_STYLES = `
   text-align: center;
   vertical-align: baseline;
   padding: 0.12em 0.45em;
+}
+/* amsmath cases: left brace + rows (value & condition). */
+.mj-cases-wrap {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0.3em;
+  vertical-align: middle;
+  margin: 0 0.1em;
+  margin-left: 0.22em;
+}
+.mj-cases-bracket-l {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  align-self: stretch;
+  align-items: flex-start;
+  width: auto;
+  min-width: 0;
+  min-height: 0.5em;
+  /* Keep a small gap from the first cases column. */
+  padding-right: 0.14em;
+}
+/* Height tracks the cases table; width from Openclipart brace crop (keep in sync with CASES_BRACE_VIEWBOX aspect). */
+.mj-cases-bracket-l .mj-cases-brace-svg {
+  flex: 1 1 auto;
+  width: auto;
+  height: 100%;
+  min-height: 100%;
+  aspect-ratio: 220 / 960;
+  display: block;
+  overflow: hidden;
+  transform: scaleX(0.5);
+  transform-origin: left;
+}
+/* Filled outline from Openclipart path (not stroked spine). */
+.mj-cases-brace-svg path {
+  fill: currentColor;
+  fill-rule: nonzero;
+  stroke: none;
+}
+.mj-cases {
+  display: inline-table;
+  table-layout: fixed;
+  min-width: 10.5em;
+  border-collapse: collapse;
+  vertical-align: middle;
+}
+.mj-cases td {
+  vertical-align: baseline;
+  padding: 0;
+}
+/* Piecewise value & condition: both columns left-aligned (amsmath cases), gap between columns. */
+.mj-cases td.mj-cases-lhs {
+  text-align: left;
+  padding: 0.1em 0.65em 0.1em 0;
+}
+.mj-cases td.mj-cases-rhs {
+  text-align: left;
+  padding: 0.1em 0 0.1em 0;
 }
 .mj-left-right {
   display: inline-flex;
