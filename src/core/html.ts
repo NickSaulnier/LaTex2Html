@@ -1,7 +1,24 @@
 import type { ExprNode, ExprNodeList } from './ast.js';
 
 /** Large operators that use limits above/below in display-style layout. */
-const LIMIT_OP_SYMBOLS = new Set(['∑', '∫', '∏']);
+/** Unicode glyphs that use limits above/below (\\sum-style), not beside. */
+const LIMIT_OP_SYMBOLS = new Set([
+  '∑',
+  '∏',
+  '∐',
+  '∫',
+  '∮',
+  '∬',
+  '∭',
+  '⋃',
+  '⋂',
+  '⨄',
+  '⋁',
+  '⋀',
+  '⨀',
+  '⨂',
+  '⨁',
+]);
 
 function isLimitOperatorBase(n: ExprNode): boolean {
   return n.type === 'symbol' && LIMIT_OP_SYMBOLS.has(n.text);

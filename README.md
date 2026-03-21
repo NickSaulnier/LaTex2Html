@@ -21,9 +21,9 @@ Runtime logic uses **no** production dependencies. **devDependencies** are limit
 - **Fractions**: `\frac{numerator}{denominator}`.
 - **Roots**: `\sqrt{x}`, `\sqrt[n]{x}`.
 - **Text**: `\mathrm{…}`, `\rm{…}`, `\text{…}` (balanced braces inside; `\` starts a command name that is copied literally into the text).
-- **Greek & common symbols**: commands listed in [`src/core/commands.ts`](src/core/commands.ts) (e.g. `\alpha`, `\infty`, `\cdot`). Unknown `\foo` becomes a literal `\foo` symbol.
+- **Symbol commands**: a large set of backslash commands map to Unicode (Greek, Hebrew, binary operators, relations, negated relations, arrows, big operators, dots, logic, etc.). See [`src/core/commands.ts`](src/core/commands.ts). Coverage is aligned with common “symbols.pdf”-style tables (e.g. [Rice CMOR LaTeX symbols PDF](https://www.cmor-faculty.rice.edu/~heinken/latex/symbols.pdf)). Unknown `\foo` is rendered as a literal `\foo` symbol.
 
-**Not supported**: matrices, alignment/tab `&`, `\usepackage`, custom macros, environments, most AMS constructs.
+**Not supported**: matrices, alignment/tab `&`, `\usepackage`, custom macros, environments, `\not` overlay, stretchable delimiters, many font packages (e.g. full `\mathbb`), and accents like `\hat{ }` beyond what maps to a single Unicode glyph.
 
 ## Commands
 
