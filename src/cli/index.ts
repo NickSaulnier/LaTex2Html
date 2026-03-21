@@ -1,14 +1,22 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { latexToHtmlDocument, latexToMathHtml } from '../core/index.js';
+import {
+  isLikelyLatexArticle,
+  latexArticleToHtmlDocument,
+  latexToHtmlDocument,
+  latexToMathHtml,
+} from '../core/index.js';
 
 function printHelp(): void {
   const msg = `Usage: latex-html [options] [file]
 
-Read LaTeX math (subset) from file or stdin; write HTML.
+Read LaTeX from file or stdin; write HTML.
+If the source contains \\documentclass, it is treated as a minimal article
+(\\maketitle, \\section, \\LaTeX, \\today, …). Otherwise it is parsed as math (subset).
 
 Options:
   -o, --output <path>   Write to file instead of stdout
-  --fragment            Output only the math span (no full document)
+  --fragment            Output only the math span (no full document; not for articles)
+  --math                Force math-only mode even when \\documentclass is present
   -h, --help            Show this help
 `;
   console.log(msg);
@@ -30,6 +38,7 @@ async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   let outPath: string | undefined;
   let fragment = false;
+  let forceMath = false;
   let filePath: string | undefined;
 
   for (let i = 0; i < argv.length; i += 1) {
@@ -37,6 +46,10 @@ async function main(): Promise<void> {
     if (a === '-h' || a === '--help') {
       printHelp();
       return;
+    }
+    if (a === '--math') {
+      forceMath = true;
+      continue;
     }
     if (a === '--fragment') {
       fragment = true;
@@ -72,9 +85,19 @@ async function main(): Promise<void> {
     source = await readStdin();
   }
 
+  const asArticle = !forceMath && isLikelyLatexArticle(source);
+
+  if (asArticle && fragment) {
+    console.error('Cannot use --fragment with article mode; omit --fragment or use --math.');
+    process.exitCode = 1;
+    return;
+  }
+
   const html = fragment
     ? `${latexToMathHtml(source, filePath)}\n`
-    : latexToHtmlDocument(source, { title: 'LaTeX HTML', fileHint: filePath });
+    : asArticle
+      ? latexArticleToHtmlDocument(source)
+      : latexToHtmlDocument(source, { title: 'LaTeX HTML', fileHint: filePath });
 
   if (outPath) {
     writeFileSync(outPath, html, 'utf8');

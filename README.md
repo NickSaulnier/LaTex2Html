@@ -14,6 +14,21 @@ Runtime logic uses **no** production dependencies. **devDependencies** are limit
 
 ## Supported LaTeX (v1)
 
+### Article mode (when `\documentclass` appears)
+
+A **minimal** article pipeline runs: strips `%` line comments, reads `\title`, `\author`, `\date` from the preamble, takes the body between `\begin{document}` … `\end{document}`, and renders:
+
+- `\maketitle` (from the extracted metadata; `\date{\today}` expands to the current locale date)
+- `\section{…}`, `\subsection{…}` (optional star after command name is skipped)
+- `\LaTeX` → small “LᵃTₑX”-style logo
+- `\today` in running text
+- Preamble-only commands that appear in the body (`\usepackage`, `\documentclass`, …) are skipped with their arguments
+- Plain paragraphs split on blank lines
+
+Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom packages, `amsmath` environments, etc.).
+
+### Math mode (default when there is no `\documentclass`)
+
 - **Letters / digits**: runs of Latin letters form one symbol; runs of digits form one number token; other characters are single symbols (e.g. `+`, `(`, `)`).
 - **Whitespace**: spaces are optional between atoms; rendered as a small gap where explicit space tokens appear.
 - **Grouping**: `{…}`.
@@ -44,7 +59,8 @@ node dist/cli/index.js [options] [file]
 
 - With **no file**, input is read from **stdin**.
 - `-o` / `--output <path>` — write HTML to a file instead of stdout.
-- `--fragment` — emit only the math `<span class="mj-math">…</span>` (no full document or embedded CSS).
+- `--fragment` — emit only the math `<span class="mj-math">…</span>` (no full document; **not** for articles).
+- `--math` — treat input as math only, even if it contains `\documentclass`.
 - `-h` / `--help` — usage.
 
 Example:

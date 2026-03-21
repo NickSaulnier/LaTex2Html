@@ -1,6 +1,11 @@
 import { MATH_STYLES } from './mathStyles.js';
 
-export function wrapFullDocument(bodyInnerHtml: string, title = 'LaTeX HTML'): string {
+export function wrapFullDocument(
+  bodyInnerHtml: string,
+  title = 'LaTeX HTML',
+  extraStyles?: string,
+): string {
+  const extra = extraStyles?.trim() ? `\n${extraStyles.trim()}\n` : '';
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +13,7 @@ export function wrapFullDocument(bodyInnerHtml: string, title = 'LaTeX HTML'): s
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${escapeTitle(title)}</title>
   <style>
-${MATH_STYLES}
+${MATH_STYLES}${extra}
   </style>
 </head>
 <body>

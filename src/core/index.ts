@@ -1,4 +1,11 @@
 export type { ExprNode, ExprNodeList } from './ast.js';
+export {
+  articlePreviewStyles,
+  isLikelyLatexArticle,
+  latexArticleToHtmlDocument,
+  latexArticleToHtmlFragment,
+} from './articleHtml.js';
+export type { ArticleMeta } from './articleHtml.js';
 export { SYMBOL_MAP } from './commands.js';
 export { wrapFullDocument } from './document.js';
 export { emitFragment, emitNode, emitNodes } from './html.js';
