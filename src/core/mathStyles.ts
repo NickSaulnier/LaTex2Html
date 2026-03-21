@@ -40,6 +40,14 @@ export const MATH_STYLES = `
   border-top: 0.065em solid currentColor;
   margin: 0.05em 0;
 }
+/* √ in denominator: sqrt vinculum is pulled up via .mj-sqrt-body margin; add space under bar + pad den. */
+.mj-frac:has(.mj-sqrt) .mj-frac-bar {
+  margin-bottom: 0.16em;
+}
+.mj-frac-den:has(.mj-sqrt) {
+  padding-top: 0.28em;
+}
+/* Keep default .mj-sqrt-body margin-top here so the vinculum meets the √ hook; den padding + bar margin avoid frac overlap. */
 .mj-sqrt {
   display: inline-flex;
   flex-direction: row;
