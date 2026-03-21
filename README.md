@@ -48,6 +48,7 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 | `npm run build`         | Compile CLI (`dist/`) and browser bundle (`dist-web/`) |
 | `npm run build:cli`     | TypeScript compile for Node CLI only                   |
 | `npm run build:browser` | Webpack production build for the demo                  |
+| `npm test`              | Build CLI then run Node’s test runner on `test/*.test.mjs` |
 | `npm run lint`          | ESLint                                                 |
 | `npm run format`        | Prettier (write)                                       |
 | `npm run format:check`  | Prettier (check only)                                  |
@@ -77,6 +78,7 @@ After `npm run build`, open `dist-web/index.html` in a browser (or serve `dist-w
 
 ## Layout
 
+- [`test/`](test/) — Node [`node:test`](https://nodejs.org/api/test.html) suites against the compiled CLI core (`dist/`).
 - [`src/core/`](src/core/) — lexer, parser, AST, HTML emitter, shared [`mathStyles.ts`](src/core/mathStyles.ts) (CSS string used in CLI documents and injected in the demo).
 - [`src/cli/`](src/cli/) — Node entrypoint.
 - [`src/browser/`](src/browser/) — Webpack entry + HTML template.

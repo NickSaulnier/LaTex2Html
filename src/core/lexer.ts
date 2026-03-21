@@ -47,6 +47,15 @@ export class Lexer {
     return this.i;
   }
 
+  /** Save offset for speculative token matching (pair with `jump`). */
+  mark(): number {
+    return this.i;
+  }
+
+  jump(pos: number): void {
+    this.i = pos;
+  }
+
   /** Next token without consuming leading whitespace (caller uses skipSpace). */
   nextRaw(): Token {
     const c = this.peek();

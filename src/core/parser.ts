@@ -109,6 +109,14 @@ export class Parser {
 
   private parseCommand(name: string): ExprNode {
     switch (name) {
+      case 'begin': {
+        const env = this.readEnvNameGroup();
+        this.skipOptionalSquareBracketArg();
+        if (env === 'aligned') {
+          return this.parseAlignedEnvironment();
+        }
+        throw this.err(`Unsupported \\\\begin{${env}}`);
+      }
       case 'frac': {
         this.lex.skipSpace();
         this.expectKind('lbrace');
@@ -169,6 +177,190 @@ export class Parser {
     return out;
   }
 
+  /** `\begin{aligned}` / `\end{aligned}` env name in `{...}`. */
+  private readEnvNameGroup(): string {
+    this.expectKind('lbrace');
+    let env = '';
+    while (true) {
+      const t = this.peek();
+      if (t.kind === 'rbrace') break;
+      if (t.kind === 'text') {
+        env += t.value;
+        this.take();
+      } else if (t.kind === 'command') {
+        env += '\\' + t.name;
+        this.take();
+      } else {
+        throw this.err('Invalid token in environment name');
+      }
+    }
+    this.expectKind('rbrace');
+    return env;
+  }
+
+  /** Optional `[...]` after `\begin{env}` (e.g. `[t]`). */
+  private skipOptionalSquareBracketArg(): void {
+    this.lex.skipSpace();
+    const mark = this.lex.mark();
+    if (this.peek().kind !== 'lbracket') {
+      this.queue = null;
+      this.lex.jump(mark);
+      return;
+    }
+    this.take();
+    let depth = 1;
+    while (depth > 0) {
+      const t = this.take();
+      if (t.kind === 'eof') throw this.err('Unclosed `[` in optional argument');
+      if (t.kind === 'lbracket') depth += 1;
+      if (t.kind === 'rbracket') depth -= 1;
+    }
+  }
+
+  /** `\\` in LaTeX is `\` + `\` → command name is one backslash (see `readCommandName`). */
+  private static readonly rowBreakCommand = '\\';
+
+  /**
+   * Match `\\end{expected}` only when the next meaningful token is `\\end`.
+   * Does not clear `this.queue` first: after `parseAlignedCell`, the queue may hold
+   * `&` or `\\` from a peek that already advanced the lexer — clearing would drop it.
+   */
+  private tryConsumeEndEnv(expected: string): boolean {
+    /* If `queue` holds a cell terminator (`&`, `\\`), skipSpace would advance the lexer
+     * past `\\` while peek still returns the queued token; jump(mark) would then sync
+     * to the wrong offset and drop the row break. */
+    this.skipLexSpaceUnlessQueued();
+    const mark = this.lex.mark();
+    const t = this.peek();
+    if (t.kind === 'ampersand') {
+      /* Cell left `&` in the queue; lexer is already past `&`. Do not jump(mark)—mark would be at `=`. */
+      void mark;
+      return false;
+    }
+    if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+      /* Queued `\\` must survive for the row loop; clearing queue would drop the row break. */
+      void mark;
+      return false;
+    }
+    if (t.kind === 'command' && t.name === 'end') {
+      this.take();
+      this.lex.skipSpace();
+    } else if (t.kind === 'lbrace') {
+      /* `\end` already consumed (e.g. after aligned cell terminator drained the queue). */
+    } else {
+      this.queue = null;
+      this.lex.jump(mark);
+      return false;
+    }
+    const env = this.readEnvNameGroup();
+    if (env !== expected) {
+      throw this.err(`Expected \\\\end{${expected}}, got \\\\end{${env}}`);
+    }
+    return true;
+  }
+
+  /**
+   * Lexer is just after the `\\end` command token; verify `{expected}` and leave stream unchanged
+   * aside from temporary reads (caller rewinds lexer and clears queue).
+   */
+  private verifyEndEnvNameHere(expected: string): boolean {
+    try {
+      this.lex.skipSpace();
+      this.expectKind('lbrace');
+      let env = '';
+      while (true) {
+        const u = this.peek();
+        if (u.kind === 'rbrace') break;
+        if (u.kind === 'text') {
+          env += u.value;
+          this.take();
+        } else if (u.kind === 'command') {
+          env += '\\' + u.name;
+          this.take();
+        } else {
+          return false;
+        }
+      }
+      this.expectKind('rbrace');
+      return env === expected;
+    } catch {
+      return false;
+    }
+  }
+
+  private peekAlignedCellTerminator(): boolean {
+    this.lex.skipSpace();
+    const mark = this.lex.mark();
+    const t = this.peek();
+    if (t.kind === 'ampersand') return true;
+    if (t.kind === 'command' && t.name === Parser.rowBreakCommand) return true;
+    if (t.kind === 'eof') return true;
+    if (t.kind === 'command' && t.name === 'end') {
+      // `peek()` left `\end` in the queue while the lexer is already at `{`;
+      // drop the queued token so `verifyEndEnvNameHere` can read `{aligned}`.
+      this.take();
+      const ok = this.verifyEndEnvNameHere('aligned');
+      this.queue = null;
+      this.lex.jump(mark);
+      return ok;
+    }
+    this.queue = null;
+    this.lex.jump(mark);
+    return false;
+  }
+
+  private parseAlignedCell(): ExprNodeList {
+    const out: ExprNodeList = [];
+    while (true) {
+      this.lex.skipSpace();
+      if (this.peekAlignedCellTerminator()) {
+        /* Leave `\\` on the queue like `&` so the row loop can end the row. Consuming
+         * `\\` here made the next line's leading `&` look like a third column. */
+        const t = this.peek();
+        if (t.kind === 'command' && t.name === 'end') {
+          this.take();
+        }
+        return out;
+      }
+      const atom = this.parsePrimary();
+      out.push(this.parseScripts(atom));
+    }
+  }
+
+  private parseAlignedEnvironment(): ExprNode {
+    const rows: ExprNodeList[][] = [];
+    while (true) {
+      this.lex.skipSpace();
+      if (this.tryConsumeEndEnv('aligned')) {
+        return { type: 'aligned', rows };
+      }
+      const row: ExprNodeList[] = [];
+      while (true) {
+        row.push(this.parseAlignedCell());
+        this.skipLexSpaceUnlessQueued();
+        if (this.tryConsumeEndEnv('aligned')) {
+          rows.push(row);
+          return { type: 'aligned', rows };
+        }
+        this.skipLexSpaceUnlessQueued();
+        const rowMark = this.lex.mark();
+        const t = this.peek();
+        if (t.kind === 'ampersand') {
+          this.take();
+          continue;
+        }
+        if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+          this.take();
+          rows.push(row);
+          break;
+        }
+        this.queue = null;
+        this.lex.jump(rowMark);
+        throw this.err('Expected &, \\\\, or \\end{aligned} in aligned environment');
+      }
+    }
+  }
+
   private readBalancedText(): string {
     this.lex.skipSpace();
     this.expectKind('lbrace');
@@ -206,6 +398,13 @@ export class Parser {
     return new ParseError(`${hint}${msg}`, this.lex.pos());
   }
 
+  /** `lex.skipSpace` while a queued terminator is pending desyncs mark/lexer (see `tryConsumeEndEnv`). */
+  private skipLexSpaceUnlessQueued(): void {
+    if (this.queue === null) {
+      this.lex.skipSpace();
+    }
+  }
+
   private peek(): Token {
     if (this.queue === null) {
       this.queue = this.lex.nextRaw();
@@ -230,6 +429,7 @@ export class Parser {
   private parseScripts(base: ExprNode): ExprNode {
     while (true) {
       this.lex.skipSpace();
+      const mark = this.lex.mark();
       const t = this.peek();
       if (t.kind === 'caret') {
         this.take();
@@ -246,6 +446,9 @@ export class Parser {
         base = mergeSub(base, sub, this.lex.pos());
         continue;
       }
+      /* `peek()` advanced the lexer; put it back so the next token is not skipped (e.g. `=` then `a^2`). */
+      this.queue = null;
+      this.lex.jump(mark);
       break;
     }
     return base;

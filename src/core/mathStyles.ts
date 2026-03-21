@@ -123,4 +123,26 @@ export const MATH_STYLES = `
   display: inline-block;
   width: 0.35em;
 }
+/* amsmath aligned: alternating r/l columns (eq. ~col 0 right, col 1 left). */
+.mj-aligned-wrap {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0.15em 0;
+}
+.mj-aligned {
+  display: inline-table;
+  border-collapse: collapse;
+  vertical-align: middle;
+}
+.mj-aligned td {
+  vertical-align: baseline;
+  padding: 0.08em 0.35em 0.08em 0;
+}
+.mj-aligned td.mj-align-r {
+  text-align: right;
+}
+.mj-aligned td.mj-align-l {
+  text-align: left;
+  padding-left: 0.15em;
+}
 `.trim();

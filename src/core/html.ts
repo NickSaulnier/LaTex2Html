@@ -59,6 +59,20 @@ export function emitNode(node: ExprNode): string {
       const cls = node.style === 'mathrm' ? 'mj-mathrm' : 'mj-text';
       return `<span class="${cls}">${escapeHtml(node.text)}</span>`;
     }
+    case 'aligned': {
+      const rowsHtml = node.rows
+        .map((row) => {
+          const cells = row
+            .map((cell, j) => {
+              const alignCls = j % 2 === 0 ? 'mj-align-r' : 'mj-align-l';
+              return `<td class="${alignCls}">${emitNodes(cell)}</td>`;
+            })
+            .join('');
+          return `<tr>${cells}</tr>`;
+        })
+        .join('');
+      return `<span class="mj-aligned-wrap"><table class="mj-aligned" role="presentation">${rowsHtml}</table></span>`;
+    }
     case 'scripts': {
       if (isLimitOperatorBase(node.base)) {
         const supHtml = node.sup
