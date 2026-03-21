@@ -113,7 +113,10 @@ export class Parser {
         const env = this.readEnvNameGroup();
         this.skipOptionalSquareBracketArg();
         if (env === 'aligned') {
-          return this.parseAlignedEnvironment();
+          return this.parseAlignedEnvironment('aligned');
+        }
+        if (env === 'align') {
+          return this.parseAlignedEnvironment('align');
         }
         if (env === 'bmatrix') {
           return this.parseMatrixEnvironment('bmatrix');
@@ -133,6 +136,13 @@ export class Parser {
       }
       case 'sqrt':
         return this.parseSqrtWithOptionalIndex();
+      case 'vec': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'vec', body };
+      }
       case 'mathrm':
       case 'rm': {
         const raw = this.readBalancedText();
@@ -486,8 +496,8 @@ export class Parser {
     }
   }
 
-  private parseAlignedEnvironment(): ExprNode {
-    const rows = this.parseTabularMathEnvironment('aligned');
+  private parseAlignedEnvironment(envName: 'aligned' | 'align'): ExprNode {
+    const rows = this.parseTabularMathEnvironment(envName);
     return { type: 'aligned', rows };
   }
 

@@ -4,6 +4,8 @@ export type ExprNode =
   | { type: 'group'; children: ExprNode[] }
   | { type: 'frac'; num: ExprNode[]; den: ExprNode[] }
   | { type: 'sqrt'; index: ExprNode[] | null; radicand: ExprNode[] }
+  /** `\vec{x}` — arrow above (physics vector). */
+  | { type: 'vec'; body: ExprNode[] }
   | { type: 'styled'; style: 'mathrm' | 'text'; text: string }
   | { type: 'scripts'; base: ExprNode; sub?: ExprNode; sup?: ExprNode }
   /** amsmath-style rows; each row is columns split by `&`, rows by `\\` (cell = `ExprNode[]`). */

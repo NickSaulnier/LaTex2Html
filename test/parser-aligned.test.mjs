@@ -61,4 +61,19 @@ describe('Parser: aligned environment', () => {
     ok(Array.isArray(nodes));
     ok(nodes.length >= 1);
   });
+
+  it('parses \\begin{align} … \\end{align} like aligned (including && extra columns)', () => {
+    const nodes = parseMath(String.raw`\begin{align} a &= b && c \\ d &= e && f \end{align}`);
+    strictEqual(nodes.length, 1);
+    strictEqual(nodes[0].type, 'aligned');
+    strictEqual(nodes[0].rows.length, 2);
+    strictEqual(nodes[0].rows[0].length, 4);
+    strictEqual(nodes[0].rows[1].length, 4);
+  });
+
+  it('parses \\vec{…}', () => {
+    const nodes = parseMath(String.raw`\vec{E}`);
+    strictEqual(nodes.length, 1);
+    strictEqual(nodes[0].type, 'vec');
+  });
 });

@@ -139,6 +139,8 @@ export function emitNode(node: ExprNode): string {
       const cls = node.style === 'mathrm' ? 'mj-mathrm' : 'mj-text';
       return `<span class="${cls}">${escapeHtml(node.text)}</span>`;
     }
+    case 'vec':
+      return `<span class="mj-vec">${emitNodes(node.body)}</span>`;
     case 'aligned': {
       const rowsHtml = node.rows
         .map((row) => {

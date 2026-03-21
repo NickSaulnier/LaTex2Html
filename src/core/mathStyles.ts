@@ -181,6 +181,24 @@ export const MATH_STYLES = `
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-style: normal;
 }
+/* \\vec{v}: arrow above (physics vector). */
+.mj-vec {
+  position: relative;
+  display: inline-block;
+  padding-top: 0.28em;
+  line-height: 1;
+}
+.mj-vec::after {
+  content: "→";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) scale(0.58, 0.75);
+  transform-origin: center bottom;
+  line-height: 0;
+  font-weight: 400;
+  pointer-events: none;
+}
 .mj-space {
   display: inline-block;
   width: 0.35em;
