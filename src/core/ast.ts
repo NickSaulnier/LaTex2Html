@@ -13,7 +13,7 @@ export type ExprNode =
   /** `\\begin{bmatrix} … \\end{bmatrix}`; `rows[row][col]` is a cell expression list. */
   | { type: 'matrix'; kind: 'bmatrix'; rows: ExprNode[][][] }
   /** `\\begin{cases} … \\end{cases}` piecewise rows (`&` between columns). */
-  | { type: 'cases'; rows: ExprNode[][][] }
+  | { type: 'cases'; display: boolean; rows: ExprNode[][][] }
   /** LaTeX `\\[ … \\]` display math: block layout in HTML. */
   | { type: 'displayMath'; children: ExprNode[] }
   /** `\\left` … `\\right` stretchy delimiters; `left`/`right` are one-char keys e.g. `(`, `)`, `{`, `}`, `.` (empty). */

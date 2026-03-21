@@ -11,6 +11,7 @@ import { Parser } from '../dist/core/parser.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 const samplePath = join(root, 'examples', 'piecewise-cases.tex');
+const dcasesPath = join(root, 'examples', 'dcases-delta.tex');
 
 describe('cases environment', () => {
   it('parses begin{cases} with two rows and two columns', () => {
@@ -87,5 +88,20 @@ describe('cases environment', () => {
     strictEqual((tableInner.match(/<tr>/g) ?? []).length, 3, 'three table rows');
     ok(html.includes('mj-cases-brace-svg'), 'brace present with multi-row cases');
     ok(html.includes('three'), 'third row text emitted');
+  });
+
+  it('parses and renders dcases with fraction and \\sin', () => {
+    const src = readFileSync(dcasesPath, 'utf8');
+    const html = latexToMathHtml(src, 'dcases-delta.tex');
+    ok(html.includes('mj-cases-wrap'), 'dcases wrapped like cases');
+    ok(html.includes('mj-dcases'), 'dcases table has display-style class');
+    ok(html.includes('mj-frac'), 'fraction rendered inside dcases');
+    ok(html.includes('mj-cases-brace-svg'), 'brace present');
+    ok(html.includes('sin'), '\\sin rendered');
+    ok(html.includes('≠'), '\\neq rendered as ≠');
+    ok(
+      /\.mj-dcases\s+td\s*\{[\s\S]*?padding-top/.test(MATH_STYLES),
+      'dcases cells have display-style vertical padding',
+    );
   });
 });

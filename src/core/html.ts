@@ -208,7 +208,8 @@ export function emitNode(node: ExprNode): string {
         })
         .join('');
       const casesBraceSvg = emitCasesBraceSvg();
-      return `<span class="mj-cases-wrap"><span class="mj-cases-bracket-l" aria-hidden="true">${casesBraceSvg}</span><table class="mj-cases" role="presentation">${colgroup}${rowsHtml}</table></span>`;
+      const tableCls = node.display ? 'mj-cases mj-dcases' : 'mj-cases';
+      return `<span class="mj-cases-wrap"><span class="mj-cases-bracket-l" aria-hidden="true">${casesBraceSvg}</span><table class="${tableCls}" role="presentation">${colgroup}${rowsHtml}</table></span>`;
     }
     case 'displayMath':
       return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;

@@ -331,6 +331,10 @@ export const MATH_STYLES = `
   text-align: left;
   padding: 0.1em 0 0.1em 0;
 }
+.mj-dcases td {
+  padding-top: 0.25em;
+  padding-bottom: 0.25em;
+}
 .mj-left-right {
   display: inline-flex;
   flex-direction: row;

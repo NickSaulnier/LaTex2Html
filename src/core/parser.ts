@@ -121,8 +121,8 @@ export class Parser {
         if (env === 'bmatrix') {
           return this.parseMatrixEnvironment('bmatrix');
         }
-        if (env === 'cases') {
-          return this.parseCasesEnvironment();
+        if (env === 'cases' || env === 'dcases') {
+          return this.parseCasesEnvironment(env);
         }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
@@ -168,6 +168,26 @@ export class Parser {
       case 'det':
       case 'gcd':
       case 'Pr':
+      case 'sin':
+      case 'cos':
+      case 'tan':
+      case 'sec':
+      case 'csc':
+      case 'cot':
+      case 'arcsin':
+      case 'arccos':
+      case 'arctan':
+      case 'sinh':
+      case 'cosh':
+      case 'tanh':
+      case 'log':
+      case 'ln':
+      case 'exp':
+      case 'ker':
+      case 'deg':
+      case 'dim':
+      case 'hom':
+      case 'arg':
         return { type: 'styled', style: 'mathrm', text: name };
       case '[': {
         const children = this.parseExprListUntilDelimiterCommand(']');
@@ -509,9 +529,9 @@ export class Parser {
     return { type: 'matrix', kind, rows };
   }
 
-  private parseCasesEnvironment(): ExprNode {
-    const rows = this.parseTabularMathEnvironment('cases');
-    return { type: 'cases', rows };
+  private parseCasesEnvironment(env: 'cases' | 'dcases'): ExprNode {
+    const rows = this.parseTabularMathEnvironment(env);
+    return { type: 'cases', display: env === 'dcases', rows };
   }
 
   private readBalancedText(): string {
