@@ -94,7 +94,7 @@ export const MATH_STYLES = `
 .mj-scripts-outer {
   display: inline-flex;
   flex-direction: row;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.02em;
 }
 /* int-limits: ∫ sup/sub beside symbol — zero gap, taller ∫ box so limits sit high/low, pull limits left. */
@@ -175,14 +175,22 @@ export const MATH_STYLES = `
 .mj-sup {
   font-size: 0.72em;
   line-height: 1;
-  position: relative;
-  top: -0.55em;
-}
-.mj-sub {
-  align-self: flex-end;
 }
 .mj-sup {
   align-self: flex-start;
+  margin-bottom: 0.25em;
+}
+.mj-sub {
+  align-self: flex-end;
+  margin-top: 0.1em;
+}
+.mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
+  align-self: flex-start;
+  margin-top: -0.45em;
+}
+.mj-scripts:has(.mj-sub):not(:has(.mj-sup)) {
+  align-self: flex-end;
+  margin-bottom: -0.25em;
 }
 .mj-mathrm,
 .mj-text {

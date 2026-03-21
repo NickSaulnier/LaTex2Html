@@ -607,8 +607,7 @@ export class Parser {
       if (t.kind === 'caret') {
         this.take();
         const sup = this.parsePrimary();
-        const supScripted = this.parseScripts(sup);
-        base = mergeSup(base, supScripted, this.lex.pos());
+        base = mergeSup(base, sup, this.lex.pos());
         continue;
       }
       if (t.kind === 'underscore') {
