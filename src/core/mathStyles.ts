@@ -76,6 +76,8 @@ export const MATH_STYLES = `
 .mj-sup {
   font-size: 0.72em;
   line-height: 1;
+  position: relative;
+  top: -0.8em;
 }
 .mj-sub {
   align-self: flex-end;
