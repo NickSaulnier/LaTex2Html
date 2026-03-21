@@ -127,6 +127,9 @@ export class Parser {
         if (env === 'multline' || env === 'multline*') {
           return this.parseMultlineEnvironment(env);
         }
+        if (env === 'array') {
+          return this.parseArrayEnvironment();
+        }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
       case 'frac':
@@ -155,6 +158,11 @@ export class Parser {
       case 'rm': {
         const raw = this.readBalancedText();
         return { type: 'styled', style: 'mathrm', text: raw };
+      }
+      case 'mathbf':
+      case 'bf': {
+        const raw = this.readBalancedText();
+        return { type: 'styled', style: 'mathbf', text: raw };
       }
       case 'text': {
         const raw = this.readBalancedText();
@@ -564,6 +572,90 @@ export class Parser {
       }
       throw this.err(`Expected \\\\\\\\ or \\\\end{${env}}`);
     }
+  }
+
+  private parseArrayEnvironment(): ExprNode {
+    const { cols, vlines } = this.readArrayColSpec();
+    const rows: ExprNodeList[][] = [];
+    const hlines: number[] = [];
+    const envName = 'array';
+
+    while (true) {
+      this.lex.skipSpace();
+      while (this.queue === null) {
+        const c = this.lex.peek();
+        if (c === '\\') {
+          const mark = this.lex.mark();
+          this.lex.advance();
+          const name = this.lex.readCommandName();
+          if (name === 'hline') {
+            hlines.push(rows.length);
+            this.lex.skipSpace();
+            continue;
+          }
+          this.lex.jump(mark);
+        }
+        break;
+      }
+
+      if (this.tryConsumeEndEnv(envName)) break;
+
+      const row: ExprNodeList[] = [];
+      while (true) {
+        row.push(this.parseEnvCell(envName));
+        this.skipLexSpaceUnlessQueued();
+        if (this.tryConsumeEndEnv(envName)) {
+          rows.push(row);
+          return { type: 'array', cols, vlines, hlines, rows };
+        }
+        this.skipLexSpaceUnlessQueued();
+        const t = this.peek();
+        if (t.kind === 'ampersand') {
+          this.take();
+          continue;
+        }
+        if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+          this.take();
+          rows.push(row);
+          break;
+        }
+        throw this.err('Expected &, \\\\\\\\, or \\\\end{array}');
+      }
+    }
+
+    return { type: 'array', cols, vlines, hlines, rows };
+  }
+
+  private readArrayColSpec(): { cols: { align: 'l' | 'c' | 'r' }[]; vlines: number[] } {
+    this.lex.skipSpace();
+    this.expectKind('lbrace');
+    const cols: { align: 'l' | 'c' | 'r' }[] = [];
+    const vlines: number[] = [];
+    while (true) {
+      const c = this.lex.peek();
+      if (c === undefined) throw this.err('Unclosed column spec in \\\\begin{array}');
+      if (c === '}') {
+        this.lex.advance();
+        break;
+      }
+      if (c === '|') {
+        vlines.push(cols.length);
+        this.lex.advance();
+        continue;
+      }
+      if (c === 'l' || c === 'c' || c === 'r') {
+        cols.push({ align: c });
+        this.lex.advance();
+        continue;
+      }
+      if (/\s/.test(c)) {
+        this.lex.advance();
+        continue;
+      }
+      throw this.err(`Invalid column spec character: '${c}'`);
+    }
+    if (cols.length === 0) throw this.err('Empty column spec in \\\\begin{array}');
+    return { cols, vlines };
   }
 
   private peekMultlineTerminator(envName: string): boolean {

@@ -161,7 +161,8 @@ export function emitNode(node: ExprNode): string {
       return `<span class="mj-sqrt">${idx}${hook}${body}</span>`;
     }
     case 'styled': {
-      const cls = node.style === 'mathrm' ? 'mj-mathrm' : 'mj-text';
+      const cls =
+        node.style === 'mathbf' ? 'mj-mathbf' : node.style === 'mathrm' ? 'mj-mathrm' : 'mj-text';
       return `<span class="${cls}">${escapeHtml(node.text)}</span>`;
     }
     case 'vec':
@@ -212,6 +213,28 @@ export function emitNode(node: ExprNode): string {
       const casesBraceSvg = emitCasesBraceSvg();
       const tableCls = node.display ? 'mj-cases mj-dcases' : 'mj-cases';
       return `<span class="mj-cases-wrap"><span class="mj-cases-bracket-l" aria-hidden="true">${casesBraceSvg}</span><table class="${tableCls}" role="presentation">${colgroup}${rowsHtml}</table></span>`;
+    }
+    case 'array': {
+      const vset = new Set(node.vlines);
+      const hset = new Set(node.hlines);
+      const rowsHtml = node.rows
+        .map((row, ri) => {
+          const trCls = hset.has(ri) ? ' class="mj-array-hline"' : '';
+          const cells = row
+            .map((cell, ci) => {
+              const col = node.cols[ci];
+              const align = col ? col.align : 'c';
+              const classes = ['mj-array-cell', `mj-array-${align}`];
+              if (vset.has(ci)) classes.push('mj-array-vline-l');
+              if (vset.has(ci + 1)) classes.push('mj-array-vline-r');
+              return `<td class="${classes.join(' ')}">${emitNodes(cell)}</td>`;
+            })
+            .join('');
+          return `<tr${trCls}>${cells}</tr>`;
+        })
+        .join('');
+      const bottomHline = hset.has(node.rows.length) ? ' mj-array-hline-bottom' : '';
+      return `<table class="mj-array${bottomHline}" role="presentation">${rowsHtml}</table>`;
     }
     case 'multline': {
       const last = node.rows.length - 1;

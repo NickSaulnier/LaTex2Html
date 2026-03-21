@@ -207,6 +207,10 @@ export const MATH_STYLES = `
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-style: normal;
 }
+.mj-mathbf {
+  font-weight: bold;
+  font-style: normal;
+}
 /* \\vec{v}: arrow above (physics vector). */
 .mj-vec {
   position: relative;
@@ -422,6 +426,31 @@ export const MATH_STYLES = `
   align-self: center;
   flex-shrink: 0;
   margin: 0 0.06em;
+}
+/* array: matrix with column alignment and partition lines. */
+.mj-array {
+  display: inline-table;
+  border-collapse: collapse;
+  vertical-align: middle;
+}
+.mj-array-cell {
+  padding: 0.15em 0.45em;
+  vertical-align: baseline;
+}
+.mj-array-cell.mj-array-l { text-align: left; }
+.mj-array-cell.mj-array-c { text-align: center; }
+.mj-array-cell.mj-array-r { text-align: right; }
+.mj-array-cell.mj-array-vline-l {
+  border-left: 0.06em solid currentColor;
+}
+.mj-array-cell.mj-array-vline-r {
+  border-right: 0.06em solid currentColor;
+}
+.mj-array-hline > .mj-array-cell {
+  border-top: 0.06em solid currentColor;
+}
+.mj-array-hline-bottom {
+  border-bottom: 0.06em solid currentColor;
 }
 /* multline: long equation across multiple lines. */
 .mj-multline {

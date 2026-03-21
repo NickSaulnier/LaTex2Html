@@ -6,7 +6,7 @@ export type ExprNode =
   | { type: 'sqrt'; index: ExprNode[] | null; radicand: ExprNode[] }
   /** `\vec{x}` — arrow above (physics vector). */
   | { type: 'vec'; body: ExprNode[] }
-  | { type: 'styled'; style: 'mathrm' | 'text'; text: string }
+  | { type: 'styled'; style: 'mathrm' | 'text' | 'mathbf'; text: string }
   | { type: 'scripts'; base: ExprNode; sub?: ExprNode; sup?: ExprNode }
   /** amsmath-style rows; each row is columns split by `&`, rows by `\\` (cell = `ExprNode[]`). */
   | { type: 'aligned'; rows: ExprNode[][][] }
@@ -16,6 +16,8 @@ export type ExprNode =
   | { type: 'cases'; display: boolean; rows: ExprNode[][][] }
   /** `\\begin{multline} … \\end{multline}`: long equation broken across lines (first left, middle center, last right). */
   | { type: 'multline'; rows: ExprNode[][] }
+  /** `\\begin{array}{cc|c} … \\end{array}`: matrix with column alignment and partition lines. */
+  | { type: 'array'; cols: { align: 'l' | 'c' | 'r' }[]; vlines: number[]; hlines: number[]; rows: ExprNode[][][] }
   /** LaTeX `\\[ … \\]` display math: block layout in HTML. */
   | { type: 'displayMath'; children: ExprNode[] }
   /** `\\left` … `\\right` stretchy delimiters; `left`/`right` are one-char keys e.g. `(`, `)`, `{`, `}`, `.` (empty). */
