@@ -104,4 +104,25 @@ describe('cases environment', () => {
       'dcases cells have display-style vertical padding',
     );
   });
+
+  it('parses and renders nested cases (cases inside cases)', () => {
+    const src = String.raw`\[ g(x) = \begin{cases} 1 & x > 0 \\ \begin{cases} 0 & x = 0 \\ -1 & x < 0 \end{cases} & \text{otherwise} \end{cases} \]`;
+    const nodes = new Parser(new Lexer(src, 'nested-cases')).parseAll();
+    const display = nodes[0];
+    strictEqual(display.type, 'displayMath');
+    const outer = display.children.find((n) => n.type === 'cases');
+    ok(outer, 'outer cases parsed');
+    strictEqual(outer.rows.length, 2, 'outer has two rows');
+    const innerCell = outer.rows[1][0];
+    const innerCases = innerCell.find((n) => n.type === 'cases');
+    ok(innerCases, 'inner cases parsed inside outer row');
+    strictEqual(innerCases.rows.length, 2, 'inner has two rows');
+
+    const html = latexToMathHtml(src, 'nested-cases.html');
+    const braceCount = (html.match(/mj-cases-brace-svg/g) ?? []).length;
+    ok(braceCount >= 2, 'two braces rendered (outer + inner)');
+    const wrapCount = (html.match(/mj-cases-wrap/g) ?? []).length;
+    ok(wrapCount >= 2, 'two cases-wrap spans (outer + inner)');
+    ok(html.includes('otherwise'), 'outer condition text rendered');
+  });
 });
