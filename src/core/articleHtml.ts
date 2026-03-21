@@ -56,6 +56,29 @@ export const ARTICLE_STYLES = `
   font-size: 0.9em;
   color: #666;
 }
+.latex-article ul.art-ul,
+.latex-article ol.art-ol {
+  margin: 0 0 0.85rem 1.25rem;
+  padding: 0;
+}
+.latex-article ul.art-ul li,
+.latex-article ol.art-ol li {
+  margin: 0.25rem 0;
+}
+.latex-article ul.art-ul li > p,
+.latex-article ol.art-ol li > p {
+  margin: 0;
+}
+.latex-article dl.art-dl {
+  margin: 0 0 0.85rem;
+}
+.latex-article dl.art-dl dt {
+  font-weight: 600;
+  margin-top: 0.35rem;
+}
+.latex-article dl.art-dl dd {
+  margin: 0.15rem 0 0.35rem 1rem;
+}
 `.trim();
 
 export type ArticleMeta = {
@@ -64,8 +87,12 @@ export type ArticleMeta = {
   datePlain?: string;
 };
 
+/** True when input should use the article/list renderer instead of the math-only parser. */
 export function isLikelyLatexArticle(source: string): boolean {
-  return /\\documentclass\b/.test(source.trim());
+  const s = source.trim();
+  if (/\\documentclass\b/.test(s)) return true;
+  if (/\\begin\s*\{(itemize|enumerate|description)\}/.test(s)) return true;
+  return false;
 }
 
 function escapeHtml(s: string): string {
@@ -203,6 +230,160 @@ function consumeWhitespace(src: string, start: number): number {
   return j;
 }
 
+function findMatchingSquareBracket(src: string, openIdx: number): number {
+  let depth = 0;
+  for (let k = openIdx; k < src.length; k += 1) {
+    const c = src[k]!;
+    if (c === '[') depth += 1;
+    if (c === ']') {
+      depth -= 1;
+      if (depth === 0) return k;
+    }
+  }
+  return src.length - 1;
+}
+
+function skipOptionalSquareBracket(src: string, start: number): number {
+  const j = consumeWhitespace(src, start);
+  if (j < src.length && src[j] === '[') {
+    return findMatchingSquareBracket(src, j) + 1;
+  }
+  return j;
+}
+
+/**
+ * From the first character inside an environment (after \\begin{env}[opt]), find the matching
+ * \\end{env} at the same nesting depth for that environment name.
+ */
+function consumeEnvironmentBody(
+  src: string,
+  innerStart: number,
+  envName: string,
+): { inner: string; end: number } | null {
+  let depth = 1;
+  let p = innerStart;
+  while (p < src.length && depth > 0) {
+    const bs = src.indexOf('\\', p);
+    if (bs === -1) return null;
+
+    if (
+      bs + 7 <= src.length &&
+      src[bs] === '\\' &&
+      src.slice(bs + 1, bs + 6) === 'begin' &&
+      src[bs + 6] === '{'
+    ) {
+      try {
+        const { inner: name, end } = readBraceGroup(src, bs + 6);
+        if (name === envName) {
+          depth += 1;
+          p = end;
+          continue;
+        }
+      } catch {
+        /* fall through */
+      }
+      p = bs + 1;
+      continue;
+    }
+
+    if (
+      bs + 5 <= src.length &&
+      src[bs] === '\\' &&
+      src.slice(bs + 1, bs + 4) === 'end' &&
+      src[bs + 4] === '{'
+    ) {
+      try {
+        const { inner: name, end } = readBraceGroup(src, bs + 4);
+        if (name === envName) {
+          depth -= 1;
+          if (depth === 0) {
+            return { inner: src.slice(innerStart, bs), end };
+          }
+          p = end;
+          continue;
+        }
+      } catch {
+        /* fall through */
+      }
+      p = bs + 1;
+      continue;
+    }
+
+    p = bs + 1;
+  }
+  return null;
+}
+
+function findCommandAt(s: string, from: number, cmdName: string): number {
+  let p = from;
+  while (p < s.length) {
+    if (s[p] === '\\') {
+      const { name, next } = readCommandName(s, p + 1);
+      if (name === cmdName) return p;
+      p = next;
+    } else {
+      p += 1;
+    }
+  }
+  return -1;
+}
+
+function splitListItems(inner: string): { optionalLabel?: string; body: string }[] {
+  const items: { optionalLabel?: string; body: string }[] = [];
+  let searchFrom = 0;
+  while (true) {
+    const itemPos = findCommandAt(inner, searchFrom, 'item');
+    if (itemPos === -1) break;
+    let j = itemPos + 1 + 'item'.length;
+    j = consumeWhitespace(inner, j);
+    let optionalLabel: string | undefined;
+    if (j < inner.length && inner[j] === '[') {
+      const close = findMatchingSquareBracket(inner, j);
+      optionalLabel = inner.slice(j + 1, close);
+      j = close + 1;
+      j = consumeWhitespace(inner, j);
+    }
+    const nextItem = findCommandAt(inner, j, 'item');
+    const endBody = nextItem === -1 ? inner.length : nextItem;
+    const body = inner.slice(j, endBody).trim();
+    items.push({ optionalLabel, body });
+    searchFrom = nextItem === -1 ? inner.length : nextItem;
+  }
+  return items;
+}
+
+function renderListItems(
+  inner: string,
+  meta: ArticleMeta,
+  listTag: 'ul' | 'ol',
+  isDescription: boolean,
+): string {
+  const parts = splitListItems(inner);
+  if (parts.length === 0) {
+    if (isDescription) return `<dl class="art-dl"></dl>\n`;
+    return `<${listTag} class="art-${listTag}"></${listTag}>\n`;
+  }
+  let html = '';
+  for (const p of parts) {
+    const itemInner = renderArticleBodyToHtml(p.body, meta);
+    if (isDescription) {
+      if (p.optionalLabel !== undefined) {
+        html += `<dt>${processInlineCommands(p.optionalLabel, meta, { block: false })}</dt>\n<dd>${itemInner}</dd>\n`;
+      } else {
+        html += `<dd>${itemInner}</dd>\n`;
+      }
+    } else if (p.optionalLabel !== undefined) {
+      html += `<li><strong>${processInlineCommands(p.optionalLabel, meta, { block: false })}</strong> ${itemInner}</li>\n`;
+    } else {
+      html += `<li>${itemInner}</li>\n`;
+    }
+  }
+  if (isDescription) {
+    return `<dl class="art-dl">\n${html}</dl>\n`;
+  }
+  return `<${listTag} class="art-${listTag}">\n${html}</${listTag}>\n`;
+}
+
 function renderMaketitle(meta: ArticleMeta): string {
   const title = meta.titlePlain
     ? `<h1 class="art-title">${processInlineCommands(meta.titlePlain, meta, { block: false })}</h1>`
@@ -297,7 +478,35 @@ function renderArticleBodyToHtml(body: string, meta: ArticleMeta): string {
         continue;
       }
 
-      if (name === 'begin' || name === 'end') {
+      if (name === 'begin') {
+        flushParagraph();
+        j = consumeWhitespace(body, j);
+        if (body[j] !== '{') {
+          i = j;
+          continue;
+        }
+        const { inner: envName, end: afterOpenBrace } = readBraceGroup(body, j);
+        let pos = consumeWhitespace(body, afterOpenBrace);
+        pos = skipOptionalSquareBracket(body, pos);
+        const consumed = consumeEnvironmentBody(body, pos, envName);
+        if (!consumed) {
+          i = afterOpenBrace;
+          continue;
+        }
+        if (envName === 'itemize') {
+          out += renderListItems(consumed.inner, meta, 'ul', false);
+        } else if (envName === 'enumerate') {
+          out += renderListItems(consumed.inner, meta, 'ol', false);
+        } else if (envName === 'description') {
+          out += renderListItems(consumed.inner, meta, 'ul', true);
+        } else {
+          out += renderArticleBodyToHtml(consumed.inner, meta);
+        }
+        i = consumed.end;
+        continue;
+      }
+
+      if (name === 'end') {
         flushParagraph();
         j = consumeWhitespace(body, j);
         if (body[j] === '{') {

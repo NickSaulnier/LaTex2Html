@@ -24,6 +24,7 @@ A **minimal** article pipeline runs: strips `%` line comments, reads `\title`, `
 - `\today` in running text
 - Preamble-only commands that appear in the body (`\usepackage`, `\documentclass`, …) are skipped with their arguments
 - Plain paragraphs split on blank lines
+- List environments: `\begin{itemize} … \item … \end{itemize}`, `enumerate`, and `description` (with optional `\item[label]`); nested lists of the same type are supported
 
 Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom packages, `amsmath` environments, etc.).
 
