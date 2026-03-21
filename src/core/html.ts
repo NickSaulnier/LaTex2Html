@@ -113,7 +113,7 @@ export function emitNode(node: ExprNode): string {
           return `<tr>${cells}</tr>`;
         })
         .join('');
-      return `<span class="mj-matrix-wrap mj-bmatrix"><span class="mj-matrix-bracket mj-matrix-bracket-l" aria-hidden="true">[</span><table class="mj-matrix" role="presentation">${rowsHtml}</table><span class="mj-matrix-bracket mj-matrix-bracket-r" aria-hidden="true">]</span></span>`;
+      return `<span class="mj-matrix-wrap mj-bmatrix"><span class="mj-matrix-bracket mj-matrix-bracket-l" aria-hidden="true"></span><table class="mj-matrix" role="presentation">${rowsHtml}</table><span class="mj-matrix-bracket mj-matrix-bracket-r" aria-hidden="true"></span></span>`;
     }
     case 'displayMath':
       return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;

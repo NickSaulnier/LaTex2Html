@@ -182,17 +182,30 @@ export const MATH_STYLES = `
 .mj-matrix-wrap {
   display: inline-flex;
   flex-direction: row;
-  align-items: center;
+  align-items: stretch;
+  gap: 0.1em;
   vertical-align: middle;
   margin: 0 0.12em;
 }
-.mj-matrix-bracket {
-  font-size: 1.65em;
-  font-weight: 400;
-  line-height: 1;
+/* Stretch to table height via flex; draw square brackets with borders (single-char glyphs stay one line tall). */
+.mj-matrix-bracket-l,
+.mj-matrix-bracket-r {
+  flex-shrink: 0;
+  width: 0.24em;
+  box-sizing: border-box;
   color: currentColor;
   user-select: none;
-  padding: 0 0.02em;
+  pointer-events: none;
+}
+.mj-matrix-bracket-l {
+  border-left: 0.09em solid currentColor;
+  border-top: 0.09em solid currentColor;
+  border-bottom: 0.09em solid currentColor;
+}
+.mj-matrix-bracket-r {
+  border-right: 0.09em solid currentColor;
+  border-top: 0.09em solid currentColor;
+  border-bottom: 0.09em solid currentColor;
 }
 .mj-matrix {
   display: inline-table;
