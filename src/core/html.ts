@@ -86,7 +86,7 @@ function emitCasesBraceSvg(): string {
     CASES_BRACE_VIEWBOX +
     '" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">' +
     '<defs><filter id="brace-thin" x="-10%" y="-10%" width="120%" height="120%">' +
-    '<feMorphology operator="erode" radius="11"/>' +
+    '<feMorphology operator="erode" radius="20"/>' +
     '</filter></defs>' +
     '<g transform="translate(-66.083,-51.122)">' +
     '<path filter="url(#brace-thin)" transform="scale(0.73137,1.3673)" fill="currentColor" d="' +
