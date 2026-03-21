@@ -241,8 +241,9 @@ export class Parser {
       if (t.kind === 'underscore') {
         this.take();
         const sub = this.parsePrimary();
-        const subScripted = this.parseScripts(sub);
-        base = mergeSub(base, subScripted, this.lex.pos());
+        // Do not parseScripts(sub): a following ^/_ applies to the outer nucleus (e.g. \sum_{i=0}^{n}),
+        // not to the subscript box. Inner scripts inside `{...}` are already handled in parseExprList.
+        base = mergeSub(base, sub, this.lex.pos());
         continue;
       }
       break;

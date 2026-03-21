@@ -72,6 +72,35 @@ export const MATH_STYLES = `
   align-items: flex-end;
   gap: 0.02em;
 }
+/* ∑ ∫ ∏ — limits stacked above / below the operator (not beside). */
+.mj-limop {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  line-height: 1.05;
+  margin: 0 0.12em;
+}
+.mj-limop-op {
+  font-size: 1.35em;
+  line-height: 1;
+  padding: 0.02em 0;
+}
+.mj-limop-sup,
+.mj-limop-sub {
+  font-size: 0.62em;
+  line-height: 1.1;
+  text-align: center;
+  max-width: 100%;
+  position: static;
+  top: auto;
+}
+.mj-limop-ph {
+  display: block;
+  min-height: 0.48em;
+  width: 0.35em;
+}
 .mj-sub,
 .mj-sup {
   font-size: 0.72em;
