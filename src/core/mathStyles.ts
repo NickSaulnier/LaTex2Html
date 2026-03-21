@@ -237,25 +237,24 @@ export const MATH_STYLES = `
   align-self: center;
   flex-shrink: 0;
 }
-.mj-delim-paren-l {
-  width: 0.38em;
-  flex-shrink: 0;
-  align-self: stretch;
-  box-sizing: border-box;
-  border-left: 0.085em solid currentColor;
-  border-top: 0.085em solid currentColor;
-  border-bottom: 0.085em solid currentColor;
-  border-radius: 0.62em 0 0 0.62em;
-}
+.mj-delim-paren-l,
 .mj-delim-paren-r {
-  width: 0.38em;
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
   align-self: stretch;
-  box-sizing: border-box;
-  border-right: 0.085em solid currentColor;
-  border-top: 0.085em solid currentColor;
-  border-bottom: 0.085em solid currentColor;
-  border-radius: 0 0.62em 0.62em 0;
+  width: 0.42em;
+  min-width: 0.32em;
+  min-height: 0.4em;
+}
+.mj-delim-paren-l .mj-paren-svg,
+.mj-delim-paren-r .mj-paren-svg {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: block;
+  overflow: visible;
 }
 .mj-delim-bar.mj-delim-l {
   width: 0;

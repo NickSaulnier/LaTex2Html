@@ -9,6 +9,7 @@ describe('\\\\left \\\\right delimiters', () => {
     ok(html.includes('mj-left-right'));
     ok(html.includes('mj-delim-paren-l'));
     ok(html.includes('mj-delim-paren-r'));
+    ok(html.includes('mj-paren-svg'), 'smooth SVG parens');
     ok(html.includes('mj-frac'));
     ok(html.includes('mj-sqrt'));
   });

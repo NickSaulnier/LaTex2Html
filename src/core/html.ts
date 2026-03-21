@@ -63,13 +63,23 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-/** `\\left` / `\\right` delimiter span (empty elements drawn via CSS borders). */
+/** Smooth stretchy `(` / `)` via SVG (border-box parens look segmented). */
+const PAREN_L_SVG =
+  '<svg class="mj-paren-svg" viewBox="0 0 14 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M 12.5 1.25 C 0.55 26 0.55 74 12.5 98.75" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+  '</svg>';
+const PAREN_R_SVG =
+  '<svg class="mj-paren-svg" viewBox="0 0 14 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M 1.5 1.25 C 13.45 26 13.45 74 1.5 98.75" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+  '</svg>';
+
+/** `\\left` / `\\right` delimiter span (parens use SVG; others mostly CSS). */
 function leftDelimiterHtml(d: string): string {
   switch (d) {
     case '.':
       return '<span class="mj-delim mj-delim-l mj-delim-dot" aria-hidden="true"></span>';
     case '(':
-      return '<span class="mj-delim mj-delim-l mj-delim-paren-l" aria-hidden="true"></span>';
+      return `<span class="mj-delim mj-delim-l mj-delim-paren-l" aria-hidden="true">${PAREN_L_SVG}</span>`;
     case '[':
       return '<span class="mj-matrix-bracket mj-matrix-bracket-l" aria-hidden="true"></span>';
     case '{':
@@ -88,7 +98,7 @@ function rightDelimiterHtml(d: string): string {
     case '.':
       return '<span class="mj-delim mj-delim-r mj-delim-dot" aria-hidden="true"></span>';
     case ')':
-      return '<span class="mj-delim mj-delim-r mj-delim-paren-r" aria-hidden="true"></span>';
+      return `<span class="mj-delim mj-delim-r mj-delim-paren-r" aria-hidden="true">${PAREN_R_SVG}</span>`;
     case ']':
       return '<span class="mj-matrix-bracket mj-matrix-bracket-r" aria-hidden="true"></span>';
     case '}':
