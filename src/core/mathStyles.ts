@@ -131,7 +131,7 @@ export const MATH_STYLES = `
   font-size: 0.72em;
   line-height: 1;
   position: relative;
-  top: -0.8em;
+  top: -0.55em;
 }
 .mj-sub {
   align-self: flex-end;
