@@ -2,7 +2,7 @@ export type ExprNode =
   | { type: 'symbol'; text: string }
   | { type: 'space' }
   | { type: 'group'; children: ExprNode[] }
-  | { type: 'frac'; num: ExprNode[]; den: ExprNode[] }
+  | { type: 'frac'; display?: boolean; num: ExprNode[]; den: ExprNode[] }
   | { type: 'sqrt'; index: ExprNode[] | null; radicand: ExprNode[] }
   /** `\vec{x}` — arrow above (physics vector). */
   | { type: 'vec'; body: ExprNode[] }

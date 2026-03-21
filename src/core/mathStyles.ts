@@ -16,7 +16,7 @@ export const MATH_STYLES = `
   text-align: center;
   margin: 0.65em 0;
 }
-/* Piecewise with cases: vertically center the prefix (e.g. f(n) =) with the tall brace block. */
+/* Vertically center the prefix (e.g. f(n) =) with tall structures like cases. */
 .mj-math-display:has(.mj-cases-wrap) {
   display: flex;
   flex-wrap: wrap;
@@ -47,6 +47,16 @@ export const MATH_STYLES = `
   width: 100%;
   border-top: 0.065em solid currentColor;
   margin: 0.05em 0;
+}
+.mj-cfrac {
+  font-size: 1em;
+  min-width: 2em;
+  vertical-align: 0.91em;
+}
+.mj-cfrac > .mj-frac-num,
+.mj-cfrac > .mj-frac-den {
+  font-size: 1em;
+  padding: 0.1em 0.35em;
 }
 /* √ in denominator: sqrt vinculum is pulled up via .mj-sqrt-body margin; add space under bar + pad den. */
 .mj-frac:has(.mj-sqrt) .mj-frac-bar {

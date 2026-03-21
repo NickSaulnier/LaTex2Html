@@ -126,7 +126,9 @@ export class Parser {
         }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
-      case 'frac': {
+      case 'frac':
+      case 'cfrac': {
+        const display = name === 'cfrac';
         this.lex.skipSpace();
         this.expectKind('lbrace');
         const num = this.parseExprList({ stop: 'rbrace' });
@@ -135,7 +137,7 @@ export class Parser {
         this.expectKind('lbrace');
         const den = this.parseExprList({ stop: 'rbrace' });
         this.expectKind('rbrace');
-        return { type: 'frac', num, den };
+        return display ? { type: 'frac', display: true, num, den } : { type: 'frac', num, den };
       }
       case 'sqrt':
         return this.parseSqrtWithOptionalIndex();

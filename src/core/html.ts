@@ -147,8 +147,10 @@ export function emitNode(node: ExprNode): string {
       return '<span class="mj-space"></span>';
     case 'group':
       return `<span class="mj-row">${emitNodes(node.children)}</span>`;
-    case 'frac':
-      return `<span class="mj-frac"><span class="mj-frac-num">${emitNodes(node.num)}</span><span class="mj-frac-bar" aria-hidden="true"></span><span class="mj-frac-den">${emitNodes(node.den)}</span></span>`;
+    case 'frac': {
+      const fracCls = node.display ? 'mj-frac mj-cfrac' : 'mj-frac';
+      return `<span class="${fracCls}"><span class="mj-frac-num">${emitNodes(node.num)}</span><span class="mj-frac-bar" aria-hidden="true"></span><span class="mj-frac-den">${emitNodes(node.den)}</span></span>`;
+    }
     case 'sqrt': {
       const idx =
         node.index && node.index.length > 0
