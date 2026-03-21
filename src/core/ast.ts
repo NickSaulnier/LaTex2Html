@@ -8,6 +8,8 @@ export type ExprNode =
   | { type: 'vec'; body: ExprNode[] }
   /** `\hat{x}` — circumflex above (operators, e.g. `\hat{H}`). */
   | { type: 'hat'; body: ExprNode[] }
+  /** `\dot{x}` — dot above (time derivative, etc.). */
+  | { type: 'dot'; body: ExprNode[] }
   | { type: 'styled'; style: 'mathrm' | 'text' | 'mathbf' | 'mathcal' | 'mathopMin'; text: string }
   | { type: 'scripts'; base: ExprNode; sub?: ExprNode; sup?: ExprNode }
   /** amsmath-style rows; each row is columns split by `&`, rows by `\\` (cell = `ExprNode[]`). */

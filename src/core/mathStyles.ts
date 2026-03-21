@@ -105,7 +105,7 @@ export const MATH_STYLES = `
   display: inline-flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.02em;
+  gap: 0.01em;
 }
 /* int-limits: ∫ sup/sub beside symbol — zero gap, taller ∫ box so limits sit high/low, pull limits left. */
 .mj-int-scripts {
@@ -198,7 +198,11 @@ export const MATH_STYLES = `
 }
 .mj-sup {
   align-self: flex-start;
-  margin-bottom: 0.25em;
+  margin-bottom: 0.2em;
+}
+/* Inline x^n etc.: sit superscript a hair closer to the base (integrals use .mj-int-scripts). */
+.mj-scripts-outer:not(.mj-int-scripts) .mj-sup {
+  transform: translateY(0.08em);
 }
 .mj-sub {
   align-self: flex-end;
@@ -206,7 +210,7 @@ export const MATH_STYLES = `
 }
 .mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
   align-self: flex-start;
-  margin-top: -0.45em;
+  margin-top: -0.5em;
 }
 .mj-scripts:has(.mj-sub):not(:has(.mj-sup)) {
   align-self: flex-end;
@@ -259,6 +263,26 @@ export const MATH_STYLES = `
   transform-origin: center bottom;
   line-height: 0;
   font-weight: 400;
+  pointer-events: none;
+}
+/* \\dot{x}: solid dot tight above the glyph (ODEs, Newton notation). */
+.mj-dot {
+  position: relative;
+  display: inline-block;
+  padding-top: 0.08em;
+  line-height: 1;
+}
+.mj-dot::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0.02em;
+  transform: translateX(-50%);
+  width: 0.15em;
+  height: 0.15em;
+  border-radius: 50%;
+  background: currentColor;
+  box-sizing: border-box;
   pointer-events: none;
 }
 /* \\left\\langle / \\right\\rangle: match bar delimiters, slightly larger for Dirac bras/kets. */

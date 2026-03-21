@@ -194,6 +194,8 @@ export function emitNode(node: ExprNode): string {
       return `<span class="mj-vec">${emitNodes(node.body)}</span>`;
     case 'hat':
       return `<span class="mj-hat">${emitNodes(node.body)}</span>`;
+    case 'dot':
+      return `<span class="mj-dot">${emitNodes(node.body)}</span>`;
     case 'aligned': {
       const rowsHtml = node.rows
         .map((row) => {

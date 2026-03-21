@@ -161,6 +161,13 @@ export class Parser {
         this.expectKind('rbrace');
         return { type: 'hat', body };
       }
+      case 'dot': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'dot', body };
+      }
       case 'mathrm':
       case 'rm': {
         const raw = this.readBalancedText();
