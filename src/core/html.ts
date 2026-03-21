@@ -104,6 +104,17 @@ export function emitNode(node: ExprNode): string {
         .join('');
       return `<span class="mj-aligned-wrap"><table class="mj-aligned" role="presentation">${rowsHtml}</table></span>`;
     }
+    case 'matrix': {
+      const rowsHtml = node.rows
+        .map((row) => {
+          const cells = row
+            .map((cell) => `<td class="mj-matrix-cell">${emitNodes(cell)}</td>`)
+            .join('');
+          return `<tr>${cells}</tr>`;
+        })
+        .join('');
+      return `<span class="mj-matrix-wrap mj-bmatrix"><span class="mj-matrix-bracket mj-matrix-bracket-l" aria-hidden="true">[</span><table class="mj-matrix" role="presentation">${rowsHtml}</table><span class="mj-matrix-bracket mj-matrix-bracket-r" aria-hidden="true">]</span></span>`;
+    }
     case 'displayMath':
       return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;
     case 'scripts': {

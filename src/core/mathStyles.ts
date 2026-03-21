@@ -179,4 +179,29 @@ export const MATH_STYLES = `
   text-align: left;
   padding-left: 0.15em;
 }
+.mj-matrix-wrap {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0.12em;
+}
+.mj-matrix-bracket {
+  font-size: 1.65em;
+  font-weight: 400;
+  line-height: 1;
+  color: currentColor;
+  user-select: none;
+  padding: 0 0.02em;
+}
+.mj-matrix {
+  display: inline-table;
+  border-collapse: collapse;
+  vertical-align: middle;
+}
+.mj-matrix-cell {
+  text-align: center;
+  vertical-align: baseline;
+  padding: 0.12em 0.45em;
+}
 `.trim();

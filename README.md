@@ -26,7 +26,7 @@ A **minimal** article pipeline runs: strips `%` line comments, reads `\title`, `
 - Plain paragraphs split on blank lines
 - List environments: `\begin{itemize} … \item … \end{itemize}`, `enumerate`, and `description` (with optional `\item[label]`); nested lists of the same type are supported
 
-Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom packages, `amsmath` environments, etc.).
+Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom packages, full `amsmath`, etc.). A few `amsmath`-like constructs are supported in math mode (`aligned`, `bmatrix`); see the **Math mode** section.
 
 ### Math mode (default when there is no `\documentclass`)
 
@@ -34,13 +34,14 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 - **Whitespace**: spaces are optional between atoms; rendered as a small gap where explicit space tokens appear.
 - **Grouping**: `{…}`.
 - **Delimiters**: `\[ … \]` for display-style math (centered block); `\( … \)` groups the inner math like `{…}` without changing layout.
+- **Matrices**: `\begin{bmatrix} … \end{bmatrix}` with `&` between columns and `\\` between rows (same cell rules as `aligned`).
 - **Scripts**: `^` and `_` with a braced or atomic operand (no double sub/sup on the same base without grouping).
 - **Fractions**: `\frac{numerator}{denominator}`.
 - **Roots**: `\sqrt{x}`, `\sqrt[n]{x}`.
 - **Text**: `\mathrm{…}`, `\rm{…}`, `\text{…}` (balanced braces inside; `\` starts a command name that is copied literally into the text).
 - **Symbol commands**: a large set of backslash commands map to Unicode (Greek, Hebrew, binary operators, relations, negated relations, arrows, big operators, dots, logic, etc.). See [`src/core/commands.ts`](src/core/commands.ts). Coverage is aligned with common “symbols.pdf”-style tables (e.g. [Rice CMOR LaTeX symbols PDF](https://www.cmor-faculty.rice.edu/~heinken/latex/symbols.pdf)). Unknown `\foo` is rendered as a literal `\foo` symbol.
 
-**Not supported**: matrices, alignment/tab `&`, `\usepackage`, custom macros, environments, `\not` overlay, stretchable delimiters, many font packages (e.g. full `\mathbb`), and accents like `\hat{ }` beyond what maps to a single Unicode glyph.
+**Not supported**: `\usepackage`, custom macros, most environments beyond `aligned` / `bmatrix`, `\not` overlay, stretchable delimiters, many font packages (e.g. full `\mathbb`), and accents like `\hat{ }` beyond what maps to a single Unicode glyph. Tab `&` is only allowed inside `aligned` and matrix environments.
 
 ## Commands
 

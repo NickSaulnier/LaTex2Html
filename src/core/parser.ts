@@ -115,6 +115,9 @@ export class Parser {
         if (env === 'aligned') {
           return this.parseAlignedEnvironment();
         }
+        if (env === 'bmatrix') {
+          return this.parseMatrixEnvironment('bmatrix');
+        }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
       case 'frac': {
@@ -340,7 +343,8 @@ export class Parser {
     }
   }
 
-  private peekAlignedCellTerminator(): boolean {
+  /** Cell terminator for `aligned`, `bmatrix`, etc.: `&`, `\\`, eof, or `\\end{envName}`. */
+  private peekEnvCellTerminator(envName: string): boolean {
     this.lex.skipSpace();
     const mark = this.lex.mark();
     const t = this.peek();
@@ -348,10 +352,8 @@ export class Parser {
     if (t.kind === 'command' && t.name === Parser.rowBreakCommand) return true;
     if (t.kind === 'eof') return true;
     if (t.kind === 'command' && t.name === 'end') {
-      // `peek()` left `\end` in the queue while the lexer is already at `{`;
-      // drop the queued token so `verifyEndEnvNameHere` can read `{aligned}`.
       this.take();
-      const ok = this.verifyEndEnvNameHere('aligned');
+      const ok = this.verifyEndEnvNameHere(envName);
       this.queue = null;
       this.lex.jump(mark);
       return ok;
@@ -361,13 +363,11 @@ export class Parser {
     return false;
   }
 
-  private parseAlignedCell(): ExprNodeList {
+  private parseEnvCell(envName: string): ExprNodeList {
     const out: ExprNodeList = [];
     while (true) {
       this.lex.skipSpace();
-      if (this.peekAlignedCellTerminator()) {
-        /* Leave `\\` on the queue like `&` so the row loop can end the row. Consuming
-         * `\\` here made the next line's leading `&` look like a third column. */
+      if (this.peekEnvCellTerminator(envName)) {
         const t = this.peek();
         if (t.kind === 'command' && t.name === 'end') {
           this.take();
@@ -379,20 +379,23 @@ export class Parser {
     }
   }
 
-  private parseAlignedEnvironment(): ExprNode {
+  /**
+   * Shared `&` / `\\` grid for `\\begin{envName}` … `\\end{envName}` (aligned, bmatrix, …).
+   */
+  private parseTabularMathEnvironment(envName: string): ExprNodeList[][] {
     const rows: ExprNodeList[][] = [];
     while (true) {
       this.lex.skipSpace();
-      if (this.tryConsumeEndEnv('aligned')) {
-        return { type: 'aligned', rows };
+      if (this.tryConsumeEndEnv(envName)) {
+        return rows;
       }
       const row: ExprNodeList[] = [];
       while (true) {
-        row.push(this.parseAlignedCell());
+        row.push(this.parseEnvCell(envName));
         this.skipLexSpaceUnlessQueued();
-        if (this.tryConsumeEndEnv('aligned')) {
+        if (this.tryConsumeEndEnv(envName)) {
           rows.push(row);
-          return { type: 'aligned', rows };
+          return rows;
         }
         this.skipLexSpaceUnlessQueued();
         const rowMark = this.lex.mark();
@@ -408,9 +411,19 @@ export class Parser {
         }
         this.queue = null;
         this.lex.jump(rowMark);
-        throw this.err('Expected &, \\\\, or \\end{aligned} in aligned environment');
+        throw this.err(`Expected &, \\\\, or \\\\end{${envName}}`);
       }
     }
+  }
+
+  private parseAlignedEnvironment(): ExprNode {
+    const rows = this.parseTabularMathEnvironment('aligned');
+    return { type: 'aligned', rows };
+  }
+
+  private parseMatrixEnvironment(kind: 'bmatrix'): ExprNode {
+    const rows = this.parseTabularMathEnvironment(kind);
+    return { type: 'matrix', kind, rows };
   }
 
   private readBalancedText(): string {
