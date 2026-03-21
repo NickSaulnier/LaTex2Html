@@ -1,6 +1,6 @@
 import { ok } from 'node:assert';
 import { describe, it } from 'node:test';
-import { latexToMathHtml } from '../dist/core/index.js';
+import { latexToMathHtml, MATH_STYLES } from '../dist/core/index.js';
 
 describe('HTML: \\lim subscript below operator', () => {
   it('uses mj-limop with sub below lim, not side scripts', () => {
@@ -16,5 +16,15 @@ describe('HTML: \\lim subscript below operator', () => {
     const html = latexToMathHtml(String.raw`\lim_{x} 0`);
     ok(html.includes('mj-limop'));
     ok(!html.includes('mj-scripts-outer'));
+  });
+
+  it('renders \\min with smaller limop operator than \\sum / \\lim', () => {
+    const html = latexToMathHtml(String.raw`\min_{w,b} x`);
+    ok(html.includes('mj-limop-op-min'), 'min uses reduced limop-op class');
+    ok(html.includes('mj-mathop-min'), 'min word span tagged for sizing');
+    ok(
+      /\.mj-limop-op\.mj-limop-op-min\s*\{[\s\S]*?font-size:\s*1\.08em/.test(MATH_STYLES),
+      'styles reduce min limop-op below default 1.35em',
+    );
   });
 });

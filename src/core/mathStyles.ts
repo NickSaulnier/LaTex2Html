@@ -167,6 +167,16 @@ export const MATH_STYLES = `
   line-height: 1;
   padding: 0.02em 0;
 }
+/* \\min: slightly smaller than ∑ / lim-style operators (see user tuning). */
+.mj-limop-op.mj-limop-op-min {
+  font-size: 1.08em;
+}
+.mj-mathop-min {
+  font-size: 0.9em;
+}
+.mj-limop-op .mj-mathop-min {
+  font-size: 1em;
+}
 .mj-limop-sup,
 .mj-limop-sub {
   font-size: 0.62em;

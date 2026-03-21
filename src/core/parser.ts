@@ -170,11 +170,15 @@ export class Parser {
         return { type: 'styled', style: 'mathcal', text: raw };
       }
       case ',':
-        return { type: 'space' };
       case ';':
       case ':':
       case '!':
         return { type: 'space' };
+      case 'quad':
+      case 'qquad':
+        return { type: 'space' };
+      case '|':
+        return { type: 'symbol', text: '∥' };
       case 'text': {
         const raw = this.readBalancedText();
         return { type: 'styled', style: 'text', text: raw };
@@ -185,8 +189,9 @@ export class Parser {
         return { type: 'styled', style: 'mathrm', text: 'lim sup' };
       case 'liminf':
         return { type: 'styled', style: 'mathrm', text: 'lim inf' };
-      case 'max':
       case 'min':
+        return { type: 'styled', style: 'mathopMin', text: 'min' };
+      case 'max':
       case 'sup':
       case 'inf':
       case 'det':

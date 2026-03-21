@@ -243,6 +243,8 @@ export const SYMBOL_MAP: Readonly<Record<string, string>> = {
   ddots: '⋱',
 
   // --- Miscellaneous symbols ---
+  top: '⊤',
+  bot: '⊥',
   wp: '℘',
   Re: 'ℜ',
   Im: 'ℑ',

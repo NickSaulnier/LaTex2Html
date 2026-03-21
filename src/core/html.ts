@@ -26,7 +26,6 @@ const ROMAN_MATHOP_WITH_LIMITS = new Set([
   'lim sup',
   'lim inf',
   'max',
-  'min',
   'sup',
   'inf',
   'det',
@@ -34,10 +33,14 @@ const ROMAN_MATHOP_WITH_LIMITS = new Set([
   'Pr',
 ]);
 
+function isMathopMinBase(n: ExprNode): boolean {
+  return n.type === 'styled' && n.style === 'mathopMin';
+}
+
 function isRomanMathopWithLimits(n: ExprNode): boolean {
-  if (n.type !== 'styled' || n.style !== 'mathrm') {
-    return false;
-  }
+  if (n.type !== 'styled') return false;
+  if (n.style === 'mathopMin') return true;
+  if (n.style !== 'mathrm') return false;
   return ROMAN_MATHOP_WITH_LIMITS.has(n.text);
 }
 
@@ -177,6 +180,7 @@ export function emitNode(node: ExprNode): string {
         text: 'mj-text',
         mathbf: 'mj-mathbf',
         mathcal: 'mj-mathcal',
+        mathopMin: 'mj-mathrm mj-mathop-min',
       };
       const cls = clsMap[node.style] ?? 'mj-text';
       const rendered = node.style === 'mathcal' ? toMathcal(node.text) : escapeHtml(node.text);
@@ -276,7 +280,8 @@ export function emitNode(node: ExprNode): string {
         const subHtml = node.sub
           ? `<span class="mj-limop-sub">${emitNode(node.sub)}</span>`
           : '<span class="mj-limop-sub mj-limop-ph" aria-hidden="true"></span>';
-        return `<span class="mj-limop">${supHtml}<span class="mj-limop-op">${emitNode(node.base)}</span>${subHtml}</span>`;
+        const opCls = isMathopMinBase(node.base) ? 'mj-limop-op mj-limop-op-min' : 'mj-limop-op';
+        return `<span class="mj-limop">${supHtml}<span class="${opCls}">${emitNode(node.base)}</span>${subHtml}</span>`;
       }
       const sub = node.sub ? `<span class="mj-sub">${emitNode(node.sub)}</span>` : '';
       const sup = node.sup ? `<span class="mj-sup">${emitNode(node.sup)}</span>` : '';
