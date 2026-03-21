@@ -89,19 +89,25 @@ export const MATH_STYLES = `
   align-items: flex-end;
   gap: 0.02em;
 }
-/* ∫ limits beside: span full glyph height; sup/sub align to top/bottom (not letter-style offsets). */
+/* int-limits: ∫ sup/sub beside symbol — zero gap, taller ∫ box so limits sit high/low, pull limits left. */
 .mj-int-scripts {
   align-items: stretch;
+  gap: 0;
+  vertical-align: middle;
 }
 .mj-int-scripts > .mj-scripts-base {
   display: inline-flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: center;
   line-height: 1;
   font-size: 1.35em;
+  min-height: 1.62em;
 }
 .mj-int-scripts .mj-scripts {
   justify-content: space-between;
   align-self: stretch;
+  align-items: center;
+  margin-left: -0.11em;
 }
 .mj-int-scripts .mj-scripts:not(:has(.mj-sub)) {
   justify-content: flex-start;
@@ -113,6 +119,20 @@ export const MATH_STYLES = `
 .mj-int-scripts .mj-sub {
   position: static;
   top: auto;
+  align-self: stretch;
+  text-align: center;
+  box-sizing: border-box;
+}
+/* Direct limit glyphs: fill stretched sup/sub cell and center (text-align alone is weak for math fonts). */
+.mj-sup > .mj-symbol,
+.mj-sub > .mj-symbol,
+.mj-limop-sup > .mj-symbol,
+.mj-limop-sub > .mj-symbol {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1;
 }
 /* ∑ ∏ — limits stacked above / below the operator; ∫ uses .mj-scripts beside the symbol. */
 .mj-limop {
