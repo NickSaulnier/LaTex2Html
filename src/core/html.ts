@@ -123,6 +123,8 @@ function leftDelimiterHtml(d: string): string {
       return `<span class="mj-delim mj-delim-l mj-delim-curly" aria-hidden="true">${escapeHtml('{')}</span>`;
     case '|':
       return '<span class="mj-delim mj-delim-l mj-delim-bar" aria-hidden="true"></span>';
+    case '\u27E8':
+      return '<span class="mj-delim mj-delim-l mj-delim-langle" aria-hidden="true">\u27E8</span>';
     case '<':
       return `<span class="mj-delim mj-delim-l mj-delim-angle" aria-hidden="true">${escapeHtml('<')}</span>`;
     default:
@@ -142,6 +144,8 @@ function rightDelimiterHtml(d: string): string {
       return `<span class="mj-delim mj-delim-r mj-delim-curly" aria-hidden="true">${escapeHtml('}')}</span>`;
     case '|':
       return '<span class="mj-delim mj-delim-r mj-delim-bar" aria-hidden="true"></span>';
+    case '\u27E9':
+      return '<span class="mj-delim mj-delim-r mj-delim-rangle" aria-hidden="true">\u27E9</span>';
     case '>':
       return `<span class="mj-delim mj-delim-r mj-delim-angle" aria-hidden="true">${escapeHtml('>')}</span>`;
     default:
@@ -188,6 +192,8 @@ export function emitNode(node: ExprNode): string {
     }
     case 'vec':
       return `<span class="mj-vec">${emitNodes(node.body)}</span>`;
+    case 'hat':
+      return `<span class="mj-hat">${emitNodes(node.body)}</span>`;
     case 'aligned': {
       const rowsHtml = node.rows
         .map((row) => {

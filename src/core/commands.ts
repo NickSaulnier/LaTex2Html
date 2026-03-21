@@ -110,6 +110,10 @@ export const SYMBOL_MAP: Readonly<Record<string, string>> = {
   bigotimes: '⨂',
   bigoplus: '⨁',
 
+  // --- Delimiters (Dirac / inner product) ---
+  langle: '⟨',
+  rangle: '⟩',
+
   // --- Calculus / differentials (common shorthands) ---
   partial: '∂',
   nabla: '∇',

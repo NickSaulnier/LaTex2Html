@@ -154,6 +154,13 @@ export class Parser {
         this.expectKind('rbrace');
         return { type: 'vec', body };
       }
+      case 'hat': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'hat', body };
+      }
       case 'mathrm':
       case 'rm': {
         const raw = this.readBalancedText();
@@ -315,7 +322,15 @@ export class Parser {
       if (t.name === '}') return '}';
       return '|';
     }
-    throw this.err('Expected delimiter after \\\\left / \\\\right (e.g. (, ), [, ], {, }, |, .)');
+    if (t.kind === 'command' && t.name === 'langle') {
+      this.take();
+      return '⟨';
+    }
+    if (t.kind === 'command' && t.name === 'rangle') {
+      this.take();
+      return '⟩';
+    }
+    throw this.err('Expected delimiter after \\\\left / \\\\right (e.g. (, ), [, ], {, }, |, ., \\\\langle, \\\\rangle)');
   }
 
   /** Math until matching `\\right` (nested `\\left…\\right` consumed as one primary). */

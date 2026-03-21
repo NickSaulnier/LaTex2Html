@@ -243,6 +243,38 @@ export const MATH_STYLES = `
   font-weight: 400;
   pointer-events: none;
 }
+/* \\hat{H}: circumflex as close to cap as browsers allow (::after + padding). */
+.mj-hat {
+  position: relative;
+  display: inline-block;
+  padding-top: 0.04em;
+  line-height: 1;
+}
+.mj-hat::after {
+  content: "\u02C6";
+  position: absolute;
+  left: 50%;
+  top: 0.1em;
+  transform: translateX(-50%) scale(0.78, 0.65);
+  transform-origin: center bottom;
+  line-height: 0;
+  font-weight: 400;
+  pointer-events: none;
+}
+/* \\left\\langle / \\right\\rangle: match bar delimiters, slightly larger for Dirac bras/kets. */
+.mj-delim-langle,
+.mj-delim-rangle {
+  align-self: stretch;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15em;
+  line-height: 1;
+  font-weight: 400;
+  color: currentColor;
+  margin: 0 0.04em;
+}
 .mj-space {
   display: inline-block;
   width: 0.35em;
