@@ -1,3 +1,10 @@
+/** One cell in an AMS-CD-style `\\begin{CD} … \\end{CD}` diagram. */
+export type CDCell =
+  | { kind: 'math'; nodes: ExprNode[] }
+  | { kind: 'empty' }
+  | { kind: 'hArrow'; label: ExprNode[] | null }
+  | { kind: 'vArrow'; label: ExprNode[] | null };
+
 export type ExprNode =
   | { type: 'symbol'; text: string }
   | { type: 'space' }
@@ -28,6 +35,8 @@ export type ExprNode =
   | { type: 'multline'; rows: ExprNode[][] }
   /** `\\begin{array}{cc|c} … \\end{array}`: matrix with column alignment and partition lines. */
   | { type: 'array'; cols: { align: 'l' | 'c' | 'r' }[]; vlines: number[]; hlines: number[]; rows: ExprNode[][][] }
+  /** `\\begin{CD} … \\end{CD}` commutative diagram (amscd-style arrows). */
+  | { type: 'cdiagram'; rows: CDCell[][] }
   /** LaTeX `\\[ … \\]` display math: block layout in HTML. */
   | { type: 'displayMath'; children: ExprNode[] }
   /** `\\left` … `\\right` stretchy delimiters; `left`/`right` are one-char keys e.g. `(`, `)`, `{`, `}`, `.` (empty). */

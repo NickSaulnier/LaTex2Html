@@ -575,6 +575,85 @@ export const MATH_STYLES = `
 .mj-array-hline-bottom {
   border-bottom: 0.06em solid currentColor;
 }
+/* AMS-CD-style commutative diagrams (\\begin{CD} … \\end{CD}). */
+.mj-cd {
+  display: inline-table;
+  border-collapse: collapse;
+  vertical-align: middle;
+  margin: 0.35em 0;
+}
+.mj-cd-cell {
+  text-align: center;
+  vertical-align: middle;
+  padding: 0.15em 0.55em;
+  min-width: 1.25em;
+}
+.mj-cd-math {
+  display: inline-block;
+}
+.mj-cd-empty {
+  display: inline-block;
+  min-width: 0.5em;
+  min-height: 0.5em;
+}
+/* Horizontal morphism: label above, long shaft + arrowhead (wider than vertical). */
+.mj-cd-h {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 3.1em;
+  gap: 0.1em;
+}
+.mj-cd-h-label {
+  font-size: 1em;
+  line-height: 1;
+}
+.mj-cd-h-label-ph {
+  min-height: 0.85em;
+}
+.mj-cd-h-stem {
+  display: block;
+  width: 100%;
+  min-width: 2.85em;
+  line-height: 0;
+}
+.mj-cd-h-arrow {
+  display: block;
+  width: 100%;
+  height: 0.4em;
+  overflow: visible;
+}
+/* Vertical morphism: shaft + head, optional label to the right (matrix middle row). */
+.mj-cd-v {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22em;
+  min-height: 2.1em;
+}
+.mj-cd-v-stem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: 1.65em;
+}
+.mj-cd-v-arrow {
+  display: block;
+  width: 0.5em;
+  min-width: 0.5em;
+  flex: 1 1 auto;
+  min-height: 1.1em;
+  overflow: visible;
+}
+.mj-cd-v-label {
+  font-size: 1em;
+  line-height: 1;
+}
 /* multline: long equation across multiple lines. */
 .mj-multline {
   display: block;

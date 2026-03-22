@@ -1,4 +1,4 @@
-import type { ExprNode, ExprNodeList } from './ast.js';
+import type { CDCell, ExprNode, ExprNodeList } from './ast.js';
 import { SYMBOL_MAP } from './commands.js';
 import { Lexer, type Token } from './lexer.js';
 
@@ -129,6 +129,9 @@ export class Parser {
         }
         if (env === 'array') {
           return this.parseArrayEnvironment();
+        }
+        if (env === 'CD') {
+          return this.parseCDEnvironment();
         }
         throw this.err(`Unsupported \\\\begin{${env}}`);
       }
@@ -276,7 +279,9 @@ export class Parser {
       case 'right':
         throw this.err('Unexpected \\\\right without matching \\\\left');
       case ']':
-        throw this.err('Unexpected `\\\\]` without matching `\\\\[`');
+        throw this.err(
+          'Unexpected `\\]` without matching `\\[` — add `\\[` before display math, or remove this `\\]` (e.g. pasted `\\begin{CD}…\\end{CD}\\]` without `\\[`).',
+        );
       case ')':
         throw this.err('Unexpected `\\\\)` without matching `\\\\(`');
       default: {
@@ -683,6 +688,337 @@ export class Parser {
     }
 
     return { type: 'array', cols, vlines, hlines, rows };
+  }
+
+  /** AMS-CD-style `\\begin{CD} … \\end{CD}` (matrix layout with `@` arrows). */
+  private parseCDEnvironment(): ExprNode {
+    this.queue = null;
+    const rows: CDCell[][] = [];
+    while (true) {
+      this.lex.skipSpace();
+      this.queue = null;
+      if (this.tryConsumeEndEnv('CD')) {
+        return { type: 'cdiagram', rows };
+      }
+      rows.push(this.parseCDRow());
+      this.lex.skipSpace();
+      this.queue = null;
+      if (this.tryConsumeEndEnv('CD')) {
+        return { type: 'cdiagram', rows };
+      }
+      const t = this.peek();
+      if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+        this.take();
+        continue;
+      }
+      throw this.err('Expected \\\\\\\\ or \\\\end{CD}');
+    }
+  }
+
+  private parseCDRow(): CDCell[] {
+    const row: CDCell[] = [];
+    while (true) {
+      this.lex.skipSpace();
+      this.queue = null;
+      if (this.peekCDRowTerminator()) {
+        return row;
+      }
+      const mark = this.lex.mark();
+      this.lex.skipSpace();
+      const t = this.lex.nextRaw();
+      if (t.kind === 'text' && t.value === '@') {
+        row.push(this.parseCDArrowAfterAt());
+        continue;
+      }
+      this.lex.jump(mark);
+      row.push({ kind: 'math', nodes: this.parseCDMathCell() });
+    }
+  }
+
+  private parseCDMathCell(): ExprNodeList {
+    const out: ExprNodeList = [];
+    while (true) {
+      if (this.peekCDMathCellTerminator()) {
+        break;
+      }
+      const atom = this.parsePrimary();
+      out.push(this.parseScripts(atom));
+    }
+    return out;
+  }
+
+  private peekCDRowTerminator(): boolean {
+    this.queue = null;
+    this.lex.skipSpace();
+    const mark = this.lex.mark();
+    const t = this.lex.nextRaw();
+    if (t.kind === 'eof') {
+      this.lex.jump(mark);
+      return false;
+    }
+    if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+      this.lex.jump(mark);
+      return true;
+    }
+    if (t.kind === 'command' && t.name === 'end') {
+      const ok = this.verifyEndEnvNameHere('CD');
+      this.queue = null;
+      this.lex.jump(mark);
+      return ok;
+    }
+    this.lex.jump(mark);
+    return false;
+  }
+
+  private peekCDMathCellTerminator(): boolean {
+    this.queue = null;
+    this.lex.skipSpace();
+    const mark = this.lex.mark();
+    const t = this.lex.nextRaw();
+    if (t.kind === 'text' && t.value === '@') {
+      this.lex.jump(mark);
+      return true;
+    }
+    if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+      this.lex.jump(mark);
+      return true;
+    }
+    if (t.kind === 'command' && t.name === 'end') {
+      const ok = this.verifyEndEnvNameHere('CD');
+      this.queue = null;
+      this.lex.jump(mark);
+      return ok;
+    }
+    this.lex.jump(mark);
+    return false;
+  }
+
+  private parseCDArrowAfterAt(): CDCell {
+    this.queue = null;
+    this.lex.skipSpace();
+    const u = this.lex.nextRaw();
+    if (u.kind === 'text' && u.value === '.') {
+      return { kind: 'empty' };
+    }
+    if (u.kind === 'text' && u.value === '>') {
+      this.queue = null;
+      this.lex.skipSpace();
+      /* Empty: `@>>>` = one `>` (above) + `>>`. Labeled: `@>f>>` = one `>` + label + `>>`. */
+      if (this.cdPeekDoubleRawChar('>')) {
+        this.cdConsumeDoubleRawChar('>');
+        return { kind: 'hArrow', label: null };
+      }
+      /* Typo `@>>k>>` written `@>>k>`: drop one stray `>` before the label. */
+      this.cdSkipStrayGlyphBeforeCdLabel('>');
+      const label = this.parseCDScriptedListUntilDoubleChar('>');
+      this.cdConsumeDoubleOrSingleCloseGlyph('>');
+      return { kind: 'hArrow', label: this.normalizeCDArrowLabel(label) };
+    }
+    if (u.kind === 'text' && u.value === 'V') {
+      this.queue = null;
+      this.lex.skipSpace();
+      /* Empty: `@VVV` = one `V` (above) + `VV`. Labeled: `@VgVV` or `@V g V V` (spaces ok). */
+      if (this.cdPeekDoubleRawChar('V')) {
+        this.cdConsumeDoubleRawChar('V');
+        return { kind: 'vArrow', label: null };
+      }
+      /* Typo `@VV h V` for `@V h V V`: extra `V` before a lowercase morphism letter. */
+      this.cdSkipStraySecondVBeforeLowercaseLabel();
+      const label = this.parseCDScriptedListUntilDoubleChar('V');
+      this.cdConsumeDoubleOrSingleCloseGlyph('V');
+      return { kind: 'vArrow', label: this.normalizeCDArrowLabel(label) };
+    }
+    throw this.err('Expected ., >, or V after @ in CD');
+  }
+
+  private normalizeCDArrowLabel(label: ExprNodeList): ExprNodeList | null {
+    if (label.length === 0) return null;
+    if (label.length === 1 && label[0]!.type === 'group' && label[0]!.children.length === 0) {
+      return null;
+    }
+    return label;
+  }
+
+  private parseCDScriptedListUntilDoubleChar(endCh: '>' | 'V'): ExprNodeList {
+    const out: ExprNodeList = [];
+    while (true) {
+      this.queue = null;
+      this.lex.skipSpace();
+      if (this.cdPeekDoubleRawChar(endCh)) {
+        break;
+      }
+      /* `@VV h V \\` typo: one closing glyph before row break / next `@` / `\end{CD}`. */
+      if (this.cdPeekSingleCloseGlyphThenRowBoundary(endCh)) {
+        break;
+      }
+      const atom = this.parseCDArrowLabelNucleus();
+      out.push(this.parseScripts(atom));
+    }
+    return out;
+  }
+
+  /** True if next non-space is one `endCh` and after it the CD row/cell ends (allows `@V h V \\`). */
+  private cdPeekSingleCloseGlyphThenRowBoundary(endCh: '>' | 'V'): boolean {
+    this.queue = null;
+    const mark = this.lex.mark();
+    this.lex.skipSpace();
+    const a = this.lex.nextRaw();
+    if (!(a.kind === 'text' && a.value === endCh)) {
+      this.lex.jump(mark);
+      return false;
+    }
+    this.lex.skipSpace();
+    const t = this.lex.nextRaw();
+    let ok = false;
+    if (t.kind === 'command' && t.name === Parser.rowBreakCommand) {
+      ok = true;
+    } else if (t.kind === 'text' && t.value === '@') {
+      ok = true;
+    } else if (t.kind === 'command' && t.name === 'end') {
+      ok = this.verifyEndEnvNameHere('CD');
+      this.queue = null;
+    } else if (
+      endCh === '>' &&
+      t.kind === 'text' &&
+      t.value.length === 1 &&
+      /[A-Z]/.test(t.value)
+    ) {
+      /* `@>>k> D`: one `>` closes the arrow before the next object cell. */
+      ok = true;
+    }
+    this.lex.jump(mark);
+    return ok;
+  }
+
+  /**
+   * One nucleus inside `@>…>>` / `@V…VV`: `{…}`, `\\command`, or a **single** Latin letter.
+   * (Plain `parsePrimary` would merge `g`+`V` in `@VgVV` into one identifier.)
+   */
+  private parseCDArrowLabelNucleus(): ExprNode {
+    this.queue = null;
+    this.lex.skipSpace();
+    const t = this.peek();
+    if (t.kind === 'lbrace') {
+      this.take();
+      const inner = this.parseExprList({ stop: 'rbrace' });
+      this.expectKind('rbrace');
+      if (inner.length === 1) return inner[0]!;
+      return { type: 'group', children: inner };
+    }
+    if (t.kind === 'command') {
+      const cmd = this.take();
+      if (cmd.kind !== 'command') throw this.err('Internal parser error');
+      return this.parseCommand(cmd.name);
+    }
+    if (t.kind === 'text') {
+      const tx = this.take();
+      if (tx.kind !== 'text') throw this.err('Internal parser error');
+      const c = tx.value;
+      if (c.length === 1 && /[a-zA-Z]/.test(c)) {
+        return { type: 'symbol', text: c };
+      }
+      if (c.length === 1) {
+        return { type: 'symbol', text: c };
+      }
+      return { type: 'symbol', text: c };
+    }
+    throw this.err('Unexpected token in CD arrow label');
+  }
+
+  private cdPeekDoubleRawChar(ch: string): boolean {
+    this.queue = null;
+    const mark = this.lex.mark();
+    this.lex.skipSpace();
+    const a = this.lex.nextRaw();
+    if (!(a.kind === 'text' && a.value === ch)) {
+      this.lex.jump(mark);
+      return false;
+    }
+    this.lex.skipSpace();
+    const b = this.lex.nextRaw();
+    if (!(b.kind === 'text' && b.value === ch)) {
+      this.lex.jump(mark);
+      return false;
+    }
+    this.lex.jump(mark);
+    return true;
+  }
+
+  private cdConsumeDoubleRawChar(ch: string): void {
+    this.queue = null;
+    this.cdExpectRawChar(ch);
+    this.lex.skipSpace();
+    this.cdExpectRawChar(ch);
+  }
+
+  /**
+   * `@>>label` when user meant `@>label>>`: skip one redundant `>` before parsing the label
+   * (detected when another `>` is not immediately followed by a third `>`).
+   */
+  private cdSkipStrayGlyphBeforeCdLabel(ch: '>'): void {
+    this.queue = null;
+    const mark = this.lex.mark();
+    this.lex.skipSpace();
+    const a = this.lex.nextRaw();
+    if (!(a.kind === 'text' && a.value === ch)) {
+      this.lex.jump(mark);
+      return;
+    }
+    this.lex.skipSpace();
+    const mark2 = this.lex.mark();
+    const b = this.lex.nextRaw();
+    if (b.kind === 'text' && b.value === ch) {
+      /* `>>>` empty arrow — first `>` already consumed; put back both and let caller handle. */
+      this.lex.jump(mark);
+      return;
+    }
+    /* One stray `>` before label; `b` was lookahead — restore it. */
+    this.lex.jump(mark2);
+  }
+
+  /**
+   * `@VV h` when user meant `@V h V V`: drop the second `V` when it is followed by a lowercase letter.
+   */
+  private cdSkipStraySecondVBeforeLowercaseLabel(): void {
+    this.queue = null;
+    const mark = this.lex.mark();
+    this.lex.skipSpace();
+    const a = this.lex.nextRaw();
+    if (!(a.kind === 'text' && a.value === 'V')) {
+      this.lex.jump(mark);
+      return;
+    }
+    this.lex.skipSpace();
+    const mark2 = this.lex.mark();
+    const b = this.lex.nextRaw();
+    const ok = b.kind === 'text' && b.value.length === 1 && /[a-z]/.test(b.value);
+    if (ok) {
+      this.lex.jump(mark2);
+      return;
+    }
+    this.lex.jump(mark);
+  }
+
+  /** Normal `>>` / `VV` close, or a single glyph if the matching pair was omitted (common typos). */
+  private cdConsumeDoubleOrSingleCloseGlyph(ch: '>' | 'V'): void {
+    this.queue = null;
+    this.cdExpectRawChar(ch);
+    this.lex.skipSpace();
+    const mark = this.lex.mark();
+    const t = this.lex.nextRaw();
+    if (t.kind === 'text' && t.value === ch) {
+      return;
+    }
+    this.lex.jump(mark);
+  }
+
+  private cdExpectRawChar(ch: string): void {
+    this.queue = null;
+    this.lex.skipSpace();
+    const t = this.lex.nextRaw();
+    if (!(t.kind === 'text' && t.value === ch)) {
+      throw this.err(`Expected '${ch}' in CD arrow`);
+    }
   }
 
   private readArrayColSpec(): { cols: { align: 'l' | 'c' | 'r' }[]; vlines: number[] } {

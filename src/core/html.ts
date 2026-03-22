@@ -1,4 +1,4 @@
-import type { ExprNode, ExprNodeList } from './ast.js';
+import type { CDCell, ExprNode, ExprNodeList } from './ast.js';
 
 /** Unicode glyphs that use limits stacked above/below (\\sum-style), not beside the operator.
  * Integrals (∫ ∮ ∬ ∭) use normal sub/sup to the right like inline math. */
@@ -18,6 +18,33 @@ const LIMIT_OP_SYMBOLS = new Set([
 
 function isLimitOperatorBase(n: ExprNode): boolean {
   return n.type === 'symbol' && LIMIT_OP_SYMBOLS.has(n.text);
+}
+
+const CD_EMPTY_CELL: CDCell = { kind: 'empty' };
+
+/** One filled path per direction (shaft + head); head is short and wide for CD-style tips. */
+const CD_H_ARROW_SVG = `<svg class="mj-cd-h-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 24" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path fill="currentColor" d="M0 10H82V5L94 12 82 19V14H0z"/></svg>`;
+
+const CD_V_ARROW_SVG = `<svg class="mj-cd-v-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 100" preserveAspectRatio="none" focusable="false" aria-hidden="true"><path fill="currentColor" d="M10 0H14V82H19l-7 14-7-14H10z"/></svg>`;
+
+/** Pad CD rows to the same column count so table cells line up with object columns.
+ * Two vertical arrows without `@.` parse as two cells; amscd still uses a 3-column middle row — insert an empty cell between them. */
+function balanceCdDiagramRows(rows: CDCell[][]): CDCell[][] {
+  if (rows.length === 0) return rows;
+  const maxCols = Math.max(...rows.map((r) => r.length));
+  return rows.map((row) => {
+    if (row.length >= maxCols) return row;
+    let out: CDCell[];
+    if (row.length === 2 && maxCols >= 3 && row[0].kind === 'vArrow' && row[1].kind === 'vArrow') {
+      out = [row[0], CD_EMPTY_CELL, row[1]];
+    } else {
+      out = [...row];
+    }
+    while (out.length < maxCols) {
+      out.push(CD_EMPTY_CELL);
+    }
+    return out;
+  });
 }
 
 /** Upright math operators whose subscripts (and superscripts) sit below/above the name, not beside. */
@@ -306,9 +333,46 @@ export function emitNode(node: ExprNode): string {
       const outerCls = isIntegralBase(node.base) ? 'mj-scripts-outer mj-int-scripts' : 'mj-scripts-outer';
       return `<span class="${outerCls}"><span class="mj-scripts-base">${emitNode(node.base)}</span>${stack}</span>`;
     }
+    case 'cdiagram': {
+      const balanced = balanceCdDiagramRows(node.rows);
+      const rowsHtml = balanced
+        .map((row) => {
+          const cells = row.map((cell) => `<td class="mj-cd-cell">${emitCDCell(cell)}</td>`).join('');
+          return `<tr>${cells}</tr>`;
+        })
+        .join('');
+      return `<table class="mj-cd" role="presentation">${rowsHtml}</table>`;
+    }
     default: {
       const _n: never = node;
       return _n;
+    }
+  }
+}
+
+function emitCDCell(cell: CDCell): string {
+  switch (cell.kind) {
+    case 'math':
+      return `<span class="mj-cd-math">${emitNodes(cell.nodes)}</span>`;
+    case 'empty':
+      return '<span class="mj-cd-empty"></span>';
+    case 'hArrow': {
+      const lab =
+        cell.label && cell.label.length > 0
+          ? `<span class="mj-cd-h-label">${emitNodes(cell.label)}</span>`
+          : '<span class="mj-cd-h-label mj-cd-h-label-ph" aria-hidden="true"></span>';
+      return `<span class="mj-cd-h">${lab}<span class="mj-cd-h-stem" aria-hidden="true">${CD_H_ARROW_SVG}</span></span>`;
+    }
+    case 'vArrow': {
+      const lab =
+        cell.label && cell.label.length > 0
+          ? `<span class="mj-cd-v-label">${emitNodes(cell.label)}</span>`
+          : '';
+      return `<span class="mj-cd-v"><span class="mj-cd-v-stem" aria-hidden="true">${CD_V_ARROW_SVG}</span>${lab}</span>`;
+    }
+    default: {
+      const _c: never = cell;
+      return _c;
     }
   }
 }

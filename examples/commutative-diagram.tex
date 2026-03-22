@@ -1,0 +1,13 @@
+% AMS-CD-style commutative diagram (\usepackage{amscd} in LaTeX).
+% Renders as a 3×3 matrix: objects in the corners, horizontal morphisms on
+% the first and third rows, vertical morphisms in the middle row.
+%
+% Vertical: @V<label>VV or @VVV (one V, optional label, then VV — not @VV<label>V).
+% Horizontal: @>label>> or @>>> ; spaces inside arrows are OK (e.g. @V g V V).
+% In amscd the middle row needs @. for an empty cell between two vertical arrows;
+% this HTML renderer inserts that cell if you omit @. so h still aligns under B.
+\[ \begin{CD}
+A @>f>> B \\
+@VgVV @. @VhVV \\
+C @>k>> D
+\end{CD} \]

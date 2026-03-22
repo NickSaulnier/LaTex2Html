@@ -18,9 +18,23 @@ import { emitFragment } from './html.js';
 import { Lexer } from './lexer.js';
 import { Parser } from './parser.js';
 
+/**
+ * Many pastes include `\begin{CD}…\end{CD}\]` but omit the opening `\[`.
+ * The math parser requires `\[`…`\]` for display math, so we wrap once when safe.
+ */
+function normalizeCdDisplayDelimiters(source: string): string {
+  if (source.includes('\\[')) return source;
+  const t = source.trim();
+  if (!/\\end\s*\{\s*CD\s*\}/.test(t)) return source;
+  if (!/\\\]\s*$/u.test(t)) return source;
+  const inner = t.replace(/\\\]\s*$/u, '').trimEnd();
+  return `\\[${inner}\\]`;
+}
+
 /** Parse LaTeX math subset and return inner HTML (fragment with `.mj-math` wrapper). */
 export function latexToMathHtml(source: string, fileHint?: string): string {
-  const lex = new Lexer(source, fileHint);
+  const normalized = normalizeCdDisplayDelimiters(source);
+  const lex = new Lexer(normalized, fileHint);
   const parser = new Parser(lex);
   const nodes = parser.parseAll();
   return emitFragment(nodes);
