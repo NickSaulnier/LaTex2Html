@@ -10,6 +10,8 @@ export type ExprNode =
   | { type: 'space' }
   | { type: 'group'; children: ExprNode[] }
   | { type: 'frac'; display?: boolean; num: ExprNode[]; den: ExprNode[] }
+  /** `\binom{n}{k}` — stacked pair in stretchy parentheses (amsmath). */
+  | { type: 'binom'; top: ExprNode[]; bottom: ExprNode[] }
   | { type: 'sqrt'; index: ExprNode[] | null; radicand: ExprNode[] }
   /** `\overbrace{...}` / `\underbrace{...}` base (annotations are attached via scripts). */
   | { type: 'brace'; kind: 'over' | 'under'; body: ExprNode[] }

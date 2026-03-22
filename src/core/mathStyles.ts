@@ -609,6 +609,24 @@ export const MATH_STYLES = `
   align-items: stretch;
   vertical-align: middle;
 }
+.mj-left-right.mj-binom {
+  margin: 0 0.12em;
+}
+.mj-binom-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  gap: 0.05em;
+}
+.mj-binom-top,
+.mj-binom-bot {
+  display: block;
+  text-align: center;
+  padding: 0 0.16em;
+  line-height: 1;
+}
 .mj-delim-body {
   display: inline-flex;
   align-items: center;

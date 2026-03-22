@@ -148,6 +148,17 @@ export class Parser {
         this.expectKind('rbrace');
         return display ? { type: 'frac', display: true, num, den } : { type: 'frac', num, den };
       }
+      case 'binom': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const top = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const bottom = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'binom', top, bottom };
+      }
       case 'sqrt':
         return this.parseSqrtWithOptionalIndex();
       case 'overbrace': {

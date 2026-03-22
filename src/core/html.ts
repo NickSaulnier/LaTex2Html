@@ -213,6 +213,10 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
       const fracCls = node.display ? 'mj-frac mj-cfrac' : 'mj-frac';
       return `<span class="${fracCls}"><span class="mj-frac-num">${emitNodes(node.num, sqrtDepth)}</span><span class="mj-frac-bar" aria-hidden="true"></span><span class="mj-frac-den">${emitNodes(node.den, sqrtDepth)}</span></span>`;
     }
+    case 'binom': {
+      const stack = `<span class="mj-binom-stack"><span class="mj-binom-top">${emitNodes(node.top, sqrtDepth)}</span><span class="mj-binom-bot">${emitNodes(node.bottom, sqrtDepth)}</span></span>`;
+      return `<span class="mj-left-right mj-binom">${leftDelimiterHtml('(')}<span class="mj-delim-body">${stack}</span>${rightDelimiterHtml(')')}</span>`;
+    }
     case 'sqrt': {
       const d = sqrtDepth + 1;
       const idx =
