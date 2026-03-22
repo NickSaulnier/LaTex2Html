@@ -36,4 +36,12 @@ describe('HTML: integral limits beside symbol', () => {
     ok(html.includes('mj-limop'));
     ok(html.includes('∑'));
   });
+
+  it('subscript-only integrals use invisible sup row so limits align like ∫_a^b', () => {
+    const subOnly = latexToMathHtml(String.raw`\oint_C`);
+    ok(subOnly.includes('mj-int-sup-ph'), 'phantom sup for ∫/∮ with sub only');
+    ok(subOnly.includes('mj-int-scripts'));
+    const withSup = latexToMathHtml(String.raw`\oint_C^2`);
+    ok(!withSup.includes('mj-int-sup-ph'), 'no phantom when superscript present');
+  });
 });

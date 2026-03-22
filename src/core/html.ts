@@ -373,7 +373,12 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
         return `<span class="mj-limop">${supHtml}<span class="${opCls}">${emitNode(node.base, sqrtDepth)}</span>${subHtml}</span>`;
       }
       const sub = node.sub ? `<span class="mj-sub">${emitNode(node.sub, sqrtDepth)}</span>` : '';
-      const sup = node.sup ? `<span class="mj-sup">${emitNode(node.sup, sqrtDepth)}</span>` : '';
+      /* Invisible sup row matches ∫_a^b layout so sub-only limits use same horizontal placement as ∫_a^b. */
+      const sup = node.sup
+        ? `<span class="mj-sup">${emitNode(node.sup, sqrtDepth)}</span>`
+        : isIntegralBase(node.base) && node.sub
+          ? `<span class="mj-sup mj-int-sup-ph" aria-hidden="true"></span>`
+          : '';
       const stack =
         sub || sup
           ? `<span class="mj-scripts">${sup}${sub}</span>`

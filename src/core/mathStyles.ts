@@ -265,7 +265,7 @@ export const MATH_STYLES = `
   min-height: 2em;
 }
 .mj-int-scripts .mj-scripts {
-  justify-content: space-between;
+  justify-content: space-around;
   align-self: stretch;
   align-items: center;
   margin-left: -0.11em;
@@ -334,6 +334,12 @@ export const MATH_STYLES = `
   min-height: 0.48em;
   width: 0.35em;
 }
+/* ∫_C: empty sup row so :has(.mj-sup) matches and limits column matches ∫_a^b (no sub-only flex hacks). */
+.mj-int-sup-ph {
+  display: block;
+  min-height: 0.4em;
+  min-width: 0.12em;
+}
 .mj-sub,
 .mj-sup {
   font-size: 0.72em;
@@ -354,11 +360,11 @@ export const MATH_STYLES = `
 .mj-scripts-outer:not(.mj-int-scripts) .mj-sub {
   transform: translateY(-0.03em);
 }
-.mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
+.mj-scripts-outer:not(.mj-int-scripts) .mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
   align-self: flex-start;
   margin-top: -0.5em;
 }
-.mj-scripts:has(.mj-sub):not(:has(.mj-sup)) {
+.mj-scripts-outer:not(.mj-int-scripts) .mj-scripts:has(.mj-sub):not(:has(.mj-sup)) {
   align-self: flex-end;
 }
 .mj-mathrm,
