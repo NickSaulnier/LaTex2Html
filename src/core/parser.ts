@@ -150,6 +150,14 @@ export class Parser {
       }
       case 'sqrt':
         return this.parseSqrtWithOptionalIndex();
+      case 'overbrace': {
+        const body = this.parseRequiredGroup();
+        return { type: 'brace', kind: 'over', body };
+      }
+      case 'underbrace': {
+        const body = this.parseRequiredGroup();
+        return { type: 'brace', kind: 'under', body };
+      }
       case 'vec': {
         this.lex.skipSpace();
         this.expectKind('lbrace');
@@ -314,6 +322,14 @@ export class Parser {
     const radicand = this.parseExprList({ stop: 'rbrace' });
     this.expectKind('rbrace');
     return { type: 'sqrt', index, radicand };
+  }
+
+  private parseRequiredGroup(): ExprNodeList {
+    this.lex.skipSpace();
+    this.expectKind('lbrace');
+    const body = this.parseExprList({ stop: 'rbrace' });
+    this.expectKind('rbrace');
+    return body;
   }
 
   private parseExprListUntilBracket(): ExprNodeList {

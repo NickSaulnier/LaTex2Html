@@ -27,6 +27,7 @@ export const MATH_STYLES = `
 .mj-row {
   display: inline-flex;
   flex-direction: row;
+  flex-wrap: nowrap;
   align-items: baseline;
   gap: 0.15em;
 }
@@ -107,6 +108,96 @@ export const MATH_STYLES = `
 /* Nested √ aligns on text baseline so all operands stay on the same line. */
 .mj-sqrt-body .mj-sqrt {
   vertical-align: baseline;
+}
+.mj-underbrace {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  vertical-align: baseline;
+}
+/* Only the body is in-flow so the row baseline matches a, +, z. Glyph sits in padding-top; avoids flex/column-reverse baseline quirks. */
+.mj-overbrace {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: 1;
+  padding-top: 0.57em;
+  box-sizing: content-box;
+}
+.mj-overbrace > .mj-brace-glyph {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.52em;
+}
+.mj-brace-body {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: baseline;
+  justify-content: center;
+  text-align: center;
+  padding: 0 0.1em;
+  line-height: 1;
+}
+.mj-brace-glyph {
+  display: block;
+  height: 0.52em;
+  line-height: 0;
+}
+.mj-brace-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.mj-overbrace-glyph {
+  margin-bottom: 0;
+}
+.mj-underbrace-glyph {
+  margin-top: 0.05em;
+}
+/* Over-stack: superscript must not set the inline baseline (flex column uses first item = label).
+   Absolutely position the label so the only in-flow box is mj-overbrace → same baseline as a, +, z. */
+.mj-brace-stack {
+  line-height: 1;
+  vertical-align: baseline;
+}
+.mj-brace-stack.mj-brace-stack-over {
+  position: relative;
+  display: inline-block;
+}
+.mj-brace-stack.mj-brace-stack-over > .mj-brace-ann-top {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  max-width: 100%;
+}
+.mj-brace-stack.mj-brace-stack-over > .mj-brace-ann-bottom {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.mj-brace-stack.mj-brace-stack-under {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+.mj-brace-ann {
+  font-size: 0.68em;
+  text-align: center;
+  line-height: 1;
+}
+.mj-brace-ann-top {
+  margin-bottom: 0.06em;
+}
+.mj-brace-ann-bottom {
+  margin-top: 0.06em;
 }
 .mj-scripts {
   display: inline-flex;

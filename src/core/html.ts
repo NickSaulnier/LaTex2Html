@@ -111,6 +111,16 @@ const SQRT_HOOK_SVG =
   '<path d="M 0 62 L 5.5 100 L 16 0" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
   '</svg>';
 
+/** Horizontal braces: long shallow “span” + smooth pinch to center beak (flat vs width, not a tight V). y=0 top. */
+const OVERBRACE_SVG =
+  '<svg class="mj-brace-svg" viewBox="0 0 100 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M 0 16.2 C 0 14.5 2.5 13.5 7 13 C 18 12.2 32 11.6 40 11.1 C 45 10.8 47.5 10 49 8.5 C 49.6 7.5 49.85 6.4 50 6 C 50.15 6.4 50.4 7.5 51 8.5 C 52.5 10 55 10.8 60 11.1 C 68 11.6 82 12.2 93 13 C 97.5 13.5 100 14.5 100 16.2" fill="none" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+  '</svg>';
+const UNDERBRACE_SVG =
+  '<svg class="mj-brace-svg" viewBox="0 0 100 18" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M 0 1.8 C 0 3.5 2.5 4.5 7 5 C 18 5.8 32 6.4 40 6.9 C 45 7.2 47.5 8 49 9.5 C 49.6 10.5 49.85 11.6 50 12 C 50.15 11.6 50.4 10.5 51 9.5 C 52.5 8 55 7.2 60 6.9 C 68 6.4 82 5.8 93 5 C 97.5 4.5 100 3.5 100 1.8" fill="none" stroke="currentColor" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+  '</svg>';
+
 /** Smooth stretchy `(` / `)` via SVG (border-box parens look segmented). */
 const PAREN_L_SVG =
   '<svg class="mj-paren-svg" viewBox="0 0 14 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
@@ -212,6 +222,20 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
       const hook = `<span class="mj-sqrt-hook" aria-hidden="true">${SQRT_HOOK_SVG}</span>`;
       const body = `<span class="mj-sqrt-body">${emitNodes(node.radicand, d)}</span>`;
       return `<span class="mj-sqrt mj-sqrt-depth-${d}">${idx}${hook}${body}</span>`;
+    }
+    case 'brace': {
+      const body = `<span class="mj-brace-body">${emitNodes(node.body, sqrtDepth)}</span>`;
+      const glyph =
+        node.kind === 'over'
+          ? `<span class="mj-brace-glyph mj-overbrace-glyph" aria-hidden="true">${OVERBRACE_SVG}</span>`
+          : `<span class="mj-brace-glyph mj-underbrace-glyph" aria-hidden="true">${UNDERBRACE_SVG}</span>`;
+      // #region agent log
+      fetch('http://127.0.0.1:7594/ingest/3fe21a14-3420-4a2f-bcc1-93fa2e9fcc6d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'02e4fb'},body:JSON.stringify({sessionId:'02e4fb',runId:'post-fix',hypothesisId:'H-dom',location:'html.ts:brace',message:'emit brace base',data:{kind:node.kind,bodyNodes:node.body.length,overBodyFirst:node.kind==='over',overLayout:'abs-glyph-padding'},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
+      /* Body first in DOM; CSS places overbrace glyph in padding-top (out of line box baseline). */
+      return node.kind === 'over'
+        ? `<span class="mj-overbrace">${body}${glyph}</span>`
+        : `<span class="mj-underbrace">${body}${glyph}</span>`;
     }
     case 'styled': {
       const clsMap: Record<string, string> = {
@@ -324,6 +348,18 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
     case 'leftRight':
       return `<span class="mj-left-right">${leftDelimiterHtml(node.left)}<span class="mj-delim-body">${emitNodes(node.body, sqrtDepth)}</span>${rightDelimiterHtml(node.right)}</span>`;
     case 'scripts': {
+      if (node.base.type === 'brace') {
+        const top = node.sup
+          ? `<span class="mj-brace-ann mj-brace-ann-top">${emitNode(node.sup, sqrtDepth)}</span>`
+          : '';
+        const bottom = node.sub
+          ? `<span class="mj-brace-ann mj-brace-ann-bottom">${emitNode(node.sub, sqrtDepth)}</span>`
+          : '';
+        // #region agent log
+        fetch('http://127.0.0.1:7594/ingest/3fe21a14-3420-4a2f-bcc1-93fa2e9fcc6d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'02e4fb'},body:JSON.stringify({sessionId:'02e4fb',runId:'brace-run',hypothesisId:'H3',location:'html.ts:scripts',message:'emit brace annotations',data:{kind:node.base.kind,hasSup:Boolean(node.sup),hasSub:Boolean(node.sub)},timestamp:Date.now()})}).catch(()=>{});
+        // #endregion
+        return `<span class="mj-brace-stack mj-brace-stack-${node.base.kind}">${top}${emitNode(node.base, sqrtDepth)}${bottom}</span>`;
+      }
       if (isLimopBase(node.base)) {
         const supHtml = node.sup
           ? `<span class="mj-limop-sup">${emitNode(node.sup, sqrtDepth)}</span>`

@@ -11,6 +11,8 @@ export type ExprNode =
   | { type: 'group'; children: ExprNode[] }
   | { type: 'frac'; display?: boolean; num: ExprNode[]; den: ExprNode[] }
   | { type: 'sqrt'; index: ExprNode[] | null; radicand: ExprNode[] }
+  /** `\overbrace{...}` / `\underbrace{...}` base (annotations are attached via scripts). */
+  | { type: 'brace'; kind: 'over' | 'under'; body: ExprNode[] }
   /** `\vec{x}` — arrow above (physics vector). */
   | { type: 'vec'; body: ExprNode[] }
   /** `\hat{x}` — circumflex above (operators, e.g. `\hat{H}`). */

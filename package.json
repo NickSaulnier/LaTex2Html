@@ -8,7 +8,7 @@
     "build": "npm run build:cli && npm run build:browser",
     "build:cli": "tsc -p tsconfig.cli.json",
     "build:browser": "webpack --mode production",
-    "test": "npm run build:cli && node --test test/parser-aligned.test.mjs test/math-align.test.mjs test/html-cases.test.mjs test/lexer.test.mjs test/html-integral.test.mjs test/html-lim.test.mjs test/html-display-brackets.test.mjs test/html-bmatrix.test.mjs test/html-leftright.test.mjs test/html-cfrac.test.mjs test/html-multline.test.mjs test/html-array.test.mjs test/html-cd.test.mjs test/html-dirac.test.mjs test/html-dot.test.mjs test/html-standard-model.test.mjs test/html-cancel.test.mjs test/html-phantom.test.mjs test/html-riemann.test.mjs test/html-sqrt-nested.test.mjs",
+    "test": "npm run build:cli && node --test test/parser-aligned.test.mjs test/math-align.test.mjs test/html-cases.test.mjs test/lexer.test.mjs test/html-integral.test.mjs test/html-lim.test.mjs test/html-display-brackets.test.mjs test/html-bmatrix.test.mjs test/html-leftright.test.mjs test/html-cfrac.test.mjs test/html-multline.test.mjs test/html-array.test.mjs test/html-cd.test.mjs test/html-dirac.test.mjs test/html-dot.test.mjs test/html-standard-model.test.mjs test/html-cancel.test.mjs test/html-phantom.test.mjs test/html-riemann.test.mjs test/html-sqrt-nested.test.mjs test/html-brace.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
