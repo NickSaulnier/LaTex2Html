@@ -9,7 +9,11 @@ describe('HTML: integral limits beside symbol', () => {
     ok(!html.includes('mj-limop'), 'does not use stacked limop layout');
     ok(html.includes('∫'), 'integral glyph present');
     ok(MATH_STYLES.includes('int-limits:'), 'integral limit tuning block present');
-    ok(MATH_STYLES.includes('min-height: 1.62em'), '∫ base min-height for limit spread');
+    ok(MATH_STYLES.includes('min-height: 2em'), '∫ base min-height for limit spread');
+    ok(
+      /\.mj-int-scripts > \.mj-scripts-base\s*\{[\s\S]*?font-weight:\s*400/.test(MATH_STYLES),
+      '∫ scripts-base explicit normal weight',
+    );
     ok(MATH_STYLES.includes('margin-left: -0.11em'), 'limits pulled toward ∫');
     ok(
       /\.mj-int-scripts \.mj-scripts \{[\s\S]*?align-items:\s*center/.test(MATH_STYLES),

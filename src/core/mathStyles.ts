@@ -122,8 +122,9 @@ export const MATH_STYLES = `
   align-items: center;
   justify-content: center;
   line-height: 1;
-  font-size: 1.35em;
-  min-height: 1.62em;
+  font-size: 2em;
+  font-weight: 200;
+  min-height: 1.5em;
 }
 .mj-int-scripts .mj-scripts {
   justify-content: space-between;
@@ -206,7 +207,7 @@ export const MATH_STYLES = `
 }
 /* Inline x^n etc.: sit superscript closer to the base (integrals use .mj-int-scripts). */
 .mj-scripts-outer:not(.mj-int-scripts) .mj-sup {
-  transform: translateY(0.11em);
+  transform: translateY(0.3em);
 }
 .mj-sub {
   align-self: flex-end;
@@ -214,7 +215,7 @@ export const MATH_STYLES = `
 }
 /* Subscripts a touch closer to the base when beside symbols. */
 .mj-scripts-outer:not(.mj-int-scripts) .mj-sub {
-  transform: translateY(-0.04em);
+  transform: translateY(-0.7em);
 }
 .mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
   align-self: flex-start;
@@ -222,7 +223,6 @@ export const MATH_STYLES = `
 }
 .mj-scripts:has(.mj-sub):not(:has(.mj-sup)) {
   align-self: flex-end;
-  margin-bottom: -0.25em;
 }
 .mj-mathrm,
 .mj-text {
