@@ -105,7 +105,11 @@ export const MATH_STYLES = `
   display: inline-flex;
   flex-direction: row;
   align-items: center;
-  gap: 0.01em;
+  gap: 0;
+}
+/* Pull limits column toward the base (x^n, x_i); integrals use .mj-int-scripts and keep their own offsets. */
+.mj-scripts-outer:not(.mj-int-scripts) .mj-scripts {
+  margin-left: -0.08em;
 }
 /* int-limits: ∫ sup/sub beside symbol — zero gap, taller ∫ box so limits sit high/low, pull limits left. */
 .mj-int-scripts {
@@ -198,15 +202,19 @@ export const MATH_STYLES = `
 }
 .mj-sup {
   align-self: flex-start;
-  margin-bottom: 0.2em;
+  margin-bottom: 0.14em;
 }
-/* Inline x^n etc.: sit superscript a hair closer to the base (integrals use .mj-int-scripts). */
+/* Inline x^n etc.: sit superscript closer to the base (integrals use .mj-int-scripts). */
 .mj-scripts-outer:not(.mj-int-scripts) .mj-sup {
-  transform: translateY(0.08em);
+  transform: translateY(0.11em);
 }
 .mj-sub {
   align-self: flex-end;
-  margin-top: 0.1em;
+  margin-top: 0.06em;
+}
+/* Subscripts a touch closer to the base when beside symbols. */
+.mj-scripts-outer:not(.mj-int-scripts) .mj-sub {
+  transform: translateY(-0.04em);
 }
 .mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
   align-self: flex-start;
