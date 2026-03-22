@@ -4,3 +4,4 @@ dist-web/
 out.html
 *.log
 .DS_Store
+.npmrc

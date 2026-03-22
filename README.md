@@ -59,11 +59,47 @@ Anything else is **not** a full LaTeX engine (no `hyperref`, `babel`, custom pac
 | `npm run format`        | Prettier (write)                                       |
 | `npm run format:check`  | Prettier (check only)                                  |
 
+## npm package
+
+Requires **Node.js 18+**. The published tarball includes compiled `dist/cli` and `dist/core` (with `.d.ts` for TypeScript).
+
+**Install**
+
+```bash
+npm install latex-html
+```
+
+If the package name is unavailable on the public registry, use a [scoped name](https://docs.npmjs.com/cli/v10/using-npm/scope) instead (e.g. `@your-org/latex-html`) and adjust `package.json` before publishing.
+
+**CLI** (after install, `node_modules/.bin` is on `PATH` for npm scripts, or use `npx`):
+
+```bash
+npx latex-html examples/sample.tex -o out.html
+```
+
+**Programmatic API** (ESM):
+
+```js
+import {
+  latexToHtmlDocument,
+  latexToMathHtml,
+  MATH_STYLES,
+} from 'latex-html';
+```
+
+`MATH_STYLES` is the CSS string embedded in full documents by `latexToHtmlDocument`; use it when you emit `--fragment`-style HTML and need styles on the page.
+
+**Publish** (maintainers): ensure `npm run build:cli` succeeds, bump `version`, then `npm publish` (the `prepare` script builds `dist/` before pack). Scoped public packages need `npm publish --access public`.
+
 ## CLI
+
+From a **git checkout**, run the compiled file directly:
 
 ```bash
 node dist/cli/index.js [options] [file]
 ```
+
+When installed from npm, use the **`latex-html`** command (same options).
 
 - With **no file**, input is read from **stdin**.
 - `-o` / `--output <path>` — write HTML to a file instead of stdout.
@@ -71,7 +107,7 @@ node dist/cli/index.js [options] [file]
 - `--math` — treat input as math only, even if it contains `\documentclass`.
 - `-h` / `--help` — usage.
 
-Example:
+Example (local build):
 
 ```bash
 npm run build
