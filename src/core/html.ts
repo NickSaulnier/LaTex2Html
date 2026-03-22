@@ -219,13 +219,17 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
     }
     case 'sqrt': {
       const d = sqrtDepth + 1;
-      const idx =
-        node.index && node.index.length > 0
-          ? `<span class="mj-sqrt-index">${emitNodes(node.index, sqrtDepth)}</span>`
-          : '';
+      const hasIndex = Boolean(node.index && node.index.length > 0);
+      const idxHtml = hasIndex && node.index ? emitNodes(node.index, sqrtDepth) : '';
+      const idx = hasIndex ? `<span class="mj-sqrt-index">${idxHtml}</span>` : '';
       const hook = `<span class="mj-sqrt-hook" aria-hidden="true">${SQRT_HOOK_SVG}</span>`;
       const body = `<span class="mj-sqrt-body">${emitNodes(node.radicand, d)}</span>`;
-      return `<span class="mj-sqrt mj-sqrt-depth-${d}">${idx}${hook}${body}</span>`;
+      const core = `${idx}${hook}${body}`;
+      if (hasIndex) {
+        const gauge = `<span class="mj-sqrt-index-gauge" aria-hidden="true">${idxHtml}</span>`;
+        return `<span class="mj-sqrt mj-sqrt-depth-${d} mj-sqrt-has-index">${gauge}<span class="mj-sqrt-inner">${core}</span></span>`;
+      }
+      return `<span class="mj-sqrt mj-sqrt-depth-${d}">${core}</span>`;
     }
     case 'brace': {
       const body = `<span class="mj-brace-body">${emitNodes(node.body, sqrtDepth)}</span>`;
@@ -233,9 +237,6 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
         node.kind === 'over'
           ? `<span class="mj-brace-glyph mj-overbrace-glyph" aria-hidden="true">${OVERBRACE_SVG}</span>`
           : `<span class="mj-brace-glyph mj-underbrace-glyph" aria-hidden="true">${UNDERBRACE_SVG}</span>`;
-      // #region agent log
-      fetch('http://127.0.0.1:7594/ingest/3fe21a14-3420-4a2f-bcc1-93fa2e9fcc6d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'02e4fb'},body:JSON.stringify({sessionId:'02e4fb',runId:'post-fix',hypothesisId:'H-dom',location:'html.ts:brace',message:'emit brace base',data:{kind:node.kind,bodyNodes:node.body.length,overBodyFirst:node.kind==='over',overLayout:'abs-glyph-padding'},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       /* Body first in DOM; CSS places overbrace glyph in padding-top (out of line box baseline). */
       return node.kind === 'over'
         ? `<span class="mj-overbrace">${body}${glyph}</span>`
@@ -359,9 +360,6 @@ export function emitNode(node: ExprNode, sqrtDepth = 0): string {
         const bottom = node.sub
           ? `<span class="mj-brace-ann mj-brace-ann-bottom">${emitNode(node.sub, sqrtDepth)}</span>`
           : '';
-        // #region agent log
-        fetch('http://127.0.0.1:7594/ingest/3fe21a14-3420-4a2f-bcc1-93fa2e9fcc6d',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'02e4fb'},body:JSON.stringify({sessionId:'02e4fb',runId:'brace-run',hypothesisId:'H3',location:'html.ts:scripts',message:'emit brace annotations',data:{kind:node.base.kind,hasSup:Boolean(node.sup),hasSub:Boolean(node.sub)},timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         return `<span class="mj-brace-stack mj-brace-stack-${node.base.kind}">${top}${emitNode(node.base, sqrtDepth)}${bottom}</span>`;
       }
       if (isLimopBase(node.base)) {

@@ -31,6 +31,29 @@ describe('nested \\\\sqrt (Ramanujan-style tower)', () => {
 
   it('positions sqrt-index above surd entry stroke, not over the glyph', () => {
     ok(MATH_STYLES.includes('bottom: 35%'), 'index at 35% from bottom');
+    ok(
+      MATH_STYLES.includes('translateX(-100%)') && MATH_STYLES.includes('left: 0.52em'),
+      'index right-aligned to hook width so long indices do not overlap surd'
+    );
+  });
+
+  it('renders multi-digit nth-root index without overlapping hook', () => {
+    const src = String.raw`\sqrt[31]{\alpha + \beta}`;
+    const html = latexToMathHtml(src);
+    ok(html.includes('mj-sqrt-index'));
+    ok(html.includes('31'));
+    ok(html.includes('mj-sqrt-has-index'), 'gauge+inner wrapper reserves horizontal space');
+    ok(html.includes('mj-sqrt-index-gauge'), 'in-flow gauge matches index width');
+    ok(html.includes('mj-sqrt-inner'), 'index/hook/body live in inner box');
+  });
+
+  it('reserves width before nth-root so long indices do not overlap preceding symbols', () => {
+    ok(MATH_STYLES.includes('.mj-sqrt-has-index'), 'nth-root outer uses flex + gauge');
+    ok(MATH_STYLES.includes('.mj-sqrt-index-gauge'), 'in-flow gauge CSS');
+    const src = String.raw`x^2 + \frac{1}{2}\sqrt[311]{\alpha + \beta} + \text{Re}(z)`;
+    const html = latexToMathHtml(src);
+    ok(html.includes('mj-sqrt-index-gauge'));
+    ok((html.match(/mj-sqrt-index-gauge/g) ?? []).length === 1, 'single gauge per sqrt');
   });
 
   it('emits mj-sqrt-index for nth-root', () => {

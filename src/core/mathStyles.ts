@@ -75,12 +75,40 @@ export const MATH_STYLES = `
   vertical-align: middle;
   line-height: 1;
 }
+/* Nth-root: invisible in-flow gauge reserves index width so absolute index does not overlap preceding math. */
+.mj-sqrt-has-index {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  position: relative;
+  vertical-align: middle;
+  line-height: 1;
+}
+.mj-sqrt-index-gauge {
+  font-size: 0.7em;
+  visibility: hidden;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  line-height: 1;
+  padding-right: 0.05em;
+  user-select: none;
+  pointer-events: none;
+}
+.mj-sqrt-inner {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+/* Right-align index to hook/body join (0.52em) so multi-digit indices grow left, not over the surd. */
 .mj-sqrt-index {
   position: absolute;
   font-size: 0.7em;
-  left: -0.05em;
+  left: 0.52em;
+  transform: translateX(-100%);
   bottom: 35%;
   z-index: 1;
+  white-space: nowrap;
 }
 .mj-sqrt-hook {
   position: absolute;
@@ -106,7 +134,8 @@ export const MATH_STYLES = `
   line-height: 1;
 }
 /* Nested √ aligns on text baseline so all operands stay on the same line. */
-.mj-sqrt-body .mj-sqrt {
+.mj-sqrt-body .mj-sqrt,
+.mj-sqrt-body .mj-sqrt-has-index {
   vertical-align: baseline;
 }
 .mj-underbrace {
