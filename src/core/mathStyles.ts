@@ -105,11 +105,11 @@ export const MATH_STYLES = `
   display: inline-flex;
   flex-direction: row;
   align-items: center;
-  gap: 0;
+  /* Tiny row gap + slight script pull-in: tight for L_SM, γ^μ, etc., without −0.08em overlap (Riemann). */
+  gap: 0.02em;
 }
-/* Pull limits column toward the base (x^n, x_i); integrals use .mj-int-scripts and keep their own offsets. */
 .mj-scripts-outer:not(.mj-int-scripts) .mj-scripts {
-  margin-left: -0.08em;
+  margin-left: -0.04em;
 }
 /* int-limits: ∫ sup/sub beside symbol — zero gap, taller ∫ box so limits sit high/low, pull limits left. */
 .mj-int-scripts {
@@ -122,9 +122,9 @@ export const MATH_STYLES = `
   align-items: center;
   justify-content: center;
   line-height: 1;
-  font-size: 2em;
-  font-weight: 200;
-  min-height: 1.5em;
+  font-size: 1.68em;
+  font-weight: 400;
+  min-height: 2em;
 }
 .mj-int-scripts .mj-scripts {
   justify-content: space-between;
@@ -205,17 +205,16 @@ export const MATH_STYLES = `
   align-self: flex-start;
   margin-bottom: 0.14em;
 }
-/* Inline x^n etc.: sit superscript closer to the base (integrals use .mj-int-scripts). */
+/* Mild vertical nudge only — large values overlap indices onto the base (Riemann / Christoffel). */
 .mj-scripts-outer:not(.mj-int-scripts) .mj-sup {
-  transform: translateY(0.3em);
+  transform: translateY(0.1em);
 }
 .mj-sub {
   align-self: flex-end;
   margin-top: 0.06em;
 }
-/* Subscripts a touch closer to the base when beside symbols. */
 .mj-scripts-outer:not(.mj-int-scripts) .mj-sub {
-  transform: translateY(-0.7em);
+  transform: translateY(-0.03em);
 }
 .mj-scripts:has(.mj-sup):not(:has(.mj-sub)) {
   align-self: flex-start;

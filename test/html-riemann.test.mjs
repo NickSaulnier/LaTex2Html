@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
-import { latexToMathHtml } from '../dist/core/index.js';
+import { latexToMathHtml, MATH_STYLES } from '../dist/core/index.js';
 import { Lexer } from '../dist/core/lexer.js';
 import { Parser } from '../dist/core/parser.js';
 
@@ -34,6 +34,16 @@ describe('Riemann curvature (staggered indices)', () => {
     const path = join(__dirname, '..', 'examples', 'riemann-curvature.tex');
     const src = readFileSync(path, 'utf8');
     const html = latexToMathHtml(src, 'riemann-curvature.tex');
+    ok(
+      /\.mj-scripts-outer\s*\{[\s\S]*?gap:\s*0\.02em/.test(MATH_STYLES),
+      'scripts-outer keeps small horizontal gap so indices do not cover the base',
+    );
+    ok(
+      /\.mj-scripts-outer:not\(\.mj-int-scripts\) \.mj-scripts\s*\{[\s\S]*?margin-left:\s*-0\.04em/.test(
+        MATH_STYLES,
+      ),
+      'modest script pull-in: tensor indices stay beside the glyph',
+    );
     ok(html.includes('mj-math-display'));
     ok(html.includes('R'), 'R');
     ok(html.includes('ρ'), 'rho superscript');
