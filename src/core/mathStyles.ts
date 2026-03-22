@@ -65,30 +65,48 @@ export const MATH_STYLES = `
 .mj-frac-den:has(.mj-sqrt) {
   padding-top: 0.28em;
 }
-/* Keep default .mj-sqrt-body margin-top here so the vinculum meets the √ hook; den padding + bar margin avoid frac overlap. */
+/* Sqrt: inline-block so the body (only in-flow child) supplies the baseline;
+   hook is absolutely positioned and stretches to full height via top:0/bottom:0.
+   line-height:1 prevents the strut from inflating the container beyond the body. */
 .mj-sqrt {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: stretch;
+  display: inline-block;
+  position: relative;
   vertical-align: middle;
+  line-height: 1;
 }
 .mj-sqrt-index {
+  position: absolute;
   font-size: 0.7em;
-  align-self: flex-end;
-  margin-right: 0.05em;
-  margin-bottom: 0.15em;
+  left: -0.05em;
+  bottom: 35%;
+  z-index: 1;
 }
 .mj-sqrt-hook {
-  font-size: 1.2em;
-  font-weight: 400;
-  line-height: 1;
-  margin-right: -0.08em;
-  transform: scaleX(0.9);
+  position: absolute;
+  left: 0;
+  top: 0.04em;
+  bottom: 0;
+  width: 0.52em;
+  display: flex;
+  flex-direction: column;
+}
+.mj-sqrt-hook .mj-sqrt-svg {
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
 }
 .mj-sqrt-body {
+  display: inline-block;
   border-top: 0.08em solid currentColor;
-  padding: 0 0.15em 0 0.05em;
-  margin-top: -2.68px;
+  padding: 0.04em 0.12em 0 0.05em;
+  margin-left: 0.52em;
+  line-height: 1;
+}
+/* Nested √ aligns on text baseline so all operands stay on the same line. */
+.mj-sqrt-body .mj-sqrt {
+  vertical-align: baseline;
 }
 .mj-scripts {
   display: inline-flex;

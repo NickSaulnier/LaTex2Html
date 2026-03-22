@@ -104,6 +104,13 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
+/** Stretchable √ surd hook via SVG — the surd scales vertically with align-items:stretch
+ *  while vector-effect keeps stroke width constant at any height. */
+const SQRT_HOOK_SVG =
+  '<svg class="mj-sqrt-svg" viewBox="0 0 16 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
+  '<path d="M 0 62 L 5.5 100 L 16 0" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>' +
+  '</svg>';
+
 /** Smooth stretchy `(` / `)` via SVG (border-box parens look segmented). */
 const PAREN_L_SVG =
   '<svg class="mj-paren-svg" viewBox="0 0 14 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">' +
@@ -180,30 +187,31 @@ function rightDelimiterHtml(d: string): string {
   }
 }
 
-export function emitNodes(nodes: ExprNodeList): string {
-  return nodes.map(emitNode).join('');
+export function emitNodes(nodes: ExprNodeList, sqrtDepth = 0): string {
+  return nodes.map((n) => emitNode(n, sqrtDepth)).join('');
 }
 
-export function emitNode(node: ExprNode): string {
+export function emitNode(node: ExprNode, sqrtDepth = 0): string {
   switch (node.type) {
     case 'symbol':
       return `<span class="mj-symbol">${escapeHtml(node.text)}</span>`;
     case 'space':
       return '<span class="mj-space"></span>';
     case 'group':
-      return `<span class="mj-row">${emitNodes(node.children)}</span>`;
+      return `<span class="mj-row">${emitNodes(node.children, sqrtDepth)}</span>`;
     case 'frac': {
       const fracCls = node.display ? 'mj-frac mj-cfrac' : 'mj-frac';
-      return `<span class="${fracCls}"><span class="mj-frac-num">${emitNodes(node.num)}</span><span class="mj-frac-bar" aria-hidden="true"></span><span class="mj-frac-den">${emitNodes(node.den)}</span></span>`;
+      return `<span class="${fracCls}"><span class="mj-frac-num">${emitNodes(node.num, sqrtDepth)}</span><span class="mj-frac-bar" aria-hidden="true"></span><span class="mj-frac-den">${emitNodes(node.den, sqrtDepth)}</span></span>`;
     }
     case 'sqrt': {
+      const d = sqrtDepth + 1;
       const idx =
         node.index && node.index.length > 0
-          ? `<span class="mj-sqrt-index">${emitNodes(node.index)}</span>`
+          ? `<span class="mj-sqrt-index">${emitNodes(node.index, sqrtDepth)}</span>`
           : '';
-      const hook = '<span class="mj-sqrt-hook" aria-hidden="true">√</span>';
-      const body = `<span class="mj-sqrt-body">${emitNodes(node.radicand)}</span>`;
-      return `<span class="mj-sqrt">${idx}${hook}${body}</span>`;
+      const hook = `<span class="mj-sqrt-hook" aria-hidden="true">${SQRT_HOOK_SVG}</span>`;
+      const body = `<span class="mj-sqrt-body">${emitNodes(node.radicand, d)}</span>`;
+      return `<span class="mj-sqrt mj-sqrt-depth-${d}">${idx}${hook}${body}</span>`;
     }
     case 'styled': {
       const clsMap: Record<string, string> = {
@@ -218,26 +226,26 @@ export function emitNode(node: ExprNode): string {
       return `<span class="${cls}">${rendered}</span>`;
     }
     case 'vec':
-      return `<span class="mj-vec">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-vec">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'hat':
-      return `<span class="mj-hat">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-hat">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'dot':
-      return `<span class="mj-dot">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-dot">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'bar':
-      return `<span class="mj-bar">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-bar">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'slashed':
-      return `<span class="mj-slashed">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-slashed">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'cancel':
-      return `<span class="mj-cancel">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-cancel">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'phantom':
-      return `<span class="mj-phantom" aria-hidden="true">${emitNodes(node.body)}</span>`;
+      return `<span class="mj-phantom" aria-hidden="true">${emitNodes(node.body, sqrtDepth)}</span>`;
     case 'aligned': {
       const rowsHtml = node.rows
         .map((row) => {
           const cells = row
             .map((cell, j) => {
               const alignCls = j % 2 === 0 ? 'mj-align-r' : 'mj-align-l';
-              return `<td class="${alignCls}">${emitNodes(cell)}</td>`;
+              return `<td class="${alignCls}">${emitNodes(cell, sqrtDepth)}</td>`;
             })
             .join('');
           return `<tr>${cells}</tr>`;
@@ -249,7 +257,7 @@ export function emitNode(node: ExprNode): string {
       const rowsHtml = node.rows
         .map((row) => {
           const cells = row
-            .map((cell) => `<td class="mj-matrix-cell">${emitNodes(cell)}</td>`)
+            .map((cell) => `<td class="mj-matrix-cell">${emitNodes(cell, sqrtDepth)}</td>`)
             .join('');
           return `<tr>${cells}</tr>`;
         })
@@ -268,7 +276,7 @@ export function emitNode(node: ExprNode): string {
           const cells = row
             .map((cell, j) => {
               const cls = j % 2 === 0 ? 'mj-cases-lhs' : 'mj-cases-rhs';
-              return `<td class="${cls}">${emitNodes(cell)}</td>`;
+              return `<td class="${cls}">${emitNodes(cell, sqrtDepth)}</td>`;
             })
             .join('');
           return `<tr>${cells}</tr>`;
@@ -291,7 +299,7 @@ export function emitNode(node: ExprNode): string {
               const classes = ['mj-array-cell', `mj-array-${align}`];
               if (vset.has(ci)) classes.push('mj-array-vline-l');
               if (vset.has(ci + 1)) classes.push('mj-array-vline-r');
-              return `<td class="${classes.join(' ')}">${emitNodes(cell)}</td>`;
+              return `<td class="${classes.join(' ')}">${emitNodes(cell, sqrtDepth)}</td>`;
             })
             .join('');
           return `<tr${trCls}>${cells}</tr>`;
@@ -306,40 +314,40 @@ export function emitNode(node: ExprNode): string {
         .map((row, i) => {
           const cls =
             i === 0 ? 'mj-multline-first' : i === last ? 'mj-multline-last' : 'mj-multline-mid';
-          return `<span class="mj-multline-row ${cls}">${emitNodes(row)}</span>`;
+          return `<span class="mj-multline-row ${cls}">${emitNodes(row, sqrtDepth)}</span>`;
         })
         .join('');
       return `<span class="mj-multline">${linesHtml}</span>`;
     }
     case 'displayMath':
-      return `<span class="mj-math-display">${emitNodes(node.children)}</span>`;
+      return `<span class="mj-math-display">${emitNodes(node.children, sqrtDepth)}</span>`;
     case 'leftRight':
-      return `<span class="mj-left-right">${leftDelimiterHtml(node.left)}<span class="mj-delim-body">${emitNodes(node.body)}</span>${rightDelimiterHtml(node.right)}</span>`;
+      return `<span class="mj-left-right">${leftDelimiterHtml(node.left)}<span class="mj-delim-body">${emitNodes(node.body, sqrtDepth)}</span>${rightDelimiterHtml(node.right)}</span>`;
     case 'scripts': {
       if (isLimopBase(node.base)) {
         const supHtml = node.sup
-          ? `<span class="mj-limop-sup">${emitNode(node.sup)}</span>`
+          ? `<span class="mj-limop-sup">${emitNode(node.sup, sqrtDepth)}</span>`
           : '<span class="mj-limop-sup mj-limop-ph" aria-hidden="true"></span>';
         const subHtml = node.sub
-          ? `<span class="mj-limop-sub">${emitNode(node.sub)}</span>`
+          ? `<span class="mj-limop-sub">${emitNode(node.sub, sqrtDepth)}</span>`
           : '<span class="mj-limop-sub mj-limop-ph" aria-hidden="true"></span>';
         const opCls = isMathopMinBase(node.base) ? 'mj-limop-op mj-limop-op-min' : 'mj-limop-op';
-        return `<span class="mj-limop">${supHtml}<span class="${opCls}">${emitNode(node.base)}</span>${subHtml}</span>`;
+        return `<span class="mj-limop">${supHtml}<span class="${opCls}">${emitNode(node.base, sqrtDepth)}</span>${subHtml}</span>`;
       }
-      const sub = node.sub ? `<span class="mj-sub">${emitNode(node.sub)}</span>` : '';
-      const sup = node.sup ? `<span class="mj-sup">${emitNode(node.sup)}</span>` : '';
+      const sub = node.sub ? `<span class="mj-sub">${emitNode(node.sub, sqrtDepth)}</span>` : '';
+      const sup = node.sup ? `<span class="mj-sup">${emitNode(node.sup, sqrtDepth)}</span>` : '';
       const stack =
         sub || sup
           ? `<span class="mj-scripts">${sup}${sub}</span>`
           : '<span class="mj-scripts"></span>';
       const outerCls = isIntegralBase(node.base) ? 'mj-scripts-outer mj-int-scripts' : 'mj-scripts-outer';
-      return `<span class="${outerCls}"><span class="mj-scripts-base">${emitNode(node.base)}</span>${stack}</span>`;
+      return `<span class="${outerCls}"><span class="mj-scripts-base">${emitNode(node.base, sqrtDepth)}</span>${stack}</span>`;
     }
     case 'cdiagram': {
       const balanced = balanceCdDiagramRows(node.rows);
       const rowsHtml = balanced
         .map((row) => {
-          const cells = row.map((cell) => `<td class="mj-cd-cell">${emitCDCell(cell)}</td>`).join('');
+          const cells = row.map((cell) => `<td class="mj-cd-cell">${emitCDCell(cell, sqrtDepth)}</td>`).join('');
           return `<tr>${cells}</tr>`;
         })
         .join('');
@@ -352,23 +360,23 @@ export function emitNode(node: ExprNode): string {
   }
 }
 
-function emitCDCell(cell: CDCell): string {
+function emitCDCell(cell: CDCell, sqrtDepth = 0): string {
   switch (cell.kind) {
     case 'math':
-      return `<span class="mj-cd-math">${emitNodes(cell.nodes)}</span>`;
+      return `<span class="mj-cd-math">${emitNodes(cell.nodes, sqrtDepth)}</span>`;
     case 'empty':
       return '<span class="mj-cd-empty"></span>';
     case 'hArrow': {
       const lab =
         cell.label && cell.label.length > 0
-          ? `<span class="mj-cd-h-label">${emitNodes(cell.label)}</span>`
+          ? `<span class="mj-cd-h-label">${emitNodes(cell.label, sqrtDepth)}</span>`
           : '<span class="mj-cd-h-label mj-cd-h-label-ph" aria-hidden="true"></span>';
       return `<span class="mj-cd-h">${lab}<span class="mj-cd-h-stem" aria-hidden="true">${CD_H_ARROW_SVG}</span></span>`;
     }
     case 'vArrow': {
       const lab =
         cell.label && cell.label.length > 0
-          ? `<span class="mj-cd-v-label">${emitNodes(cell.label)}</span>`
+          ? `<span class="mj-cd-v-label">${emitNodes(cell.label, sqrtDepth)}</span>`
           : '';
       return `<span class="mj-cd-v"><span class="mj-cd-v-stem" aria-hidden="true">${CD_V_ARROW_SVG}</span>${lab}</span>`;
     }
