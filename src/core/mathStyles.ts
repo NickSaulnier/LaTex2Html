@@ -247,19 +247,20 @@ export const MATH_STYLES = `
   font-weight: 400;
   pointer-events: none;
 }
-/* \\hat{H}: circumflex as close to cap as browsers allow (::after + padding). */
+/* \\hat{H}: circumflex bottom meets top of base box (bottom: 100%); no negative margin → no overlap into tall glyphs. */
 .mj-hat {
   position: relative;
   display: inline-block;
-  padding-top: 0.04em;
   line-height: 1;
+  vertical-align: middle;
 }
-.mj-hat::after {
+.mj-hat::before {
   content: "\u02C6";
   position: absolute;
   left: 50%;
-  top: 0.1em;
-  transform: translateX(-50%) scale(0.78, 0.65);
+  bottom: 100%;
+  /* ~0.12em: closer on x-height letters; still anchored via bottom:100% so tall bases don’t get overlapped like negative-margin flex did */
+  transform: translateX(-50%) translateY(0.12em) scale(0.78, 0.65);
   transform-origin: center bottom;
   line-height: 0;
   font-weight: 400;

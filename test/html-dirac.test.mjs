@@ -20,8 +20,16 @@ describe('Dirac notation (bra-ket, hat, angles)', () => {
     ok(html.includes('∫'), 'integral');
     ok(/\.mj-hat\s*\{/.test(MATH_STYLES), 'hat accent CSS');
     ok(
-      /\.mj-hat\s*\{[\s\S]*?padding-top:\s*0\.04em/.test(MATH_STYLES),
-      'hat: minimal padding so circumflex hugs the base',
+      /\.mj-hat\s*\{[\s\S]*?position:\s*relative/.test(MATH_STYLES),
+      'hat: positioning context for accent',
+    );
+    ok(
+      /\.mj-hat::before\s*\{[\s\S]*?bottom:\s*100%/.test(MATH_STYLES),
+      'hat: circumflex anchored just above base box',
+    );
+    ok(
+      /\.mj-hat::before\s*\{[\s\S]*?translateX\(-50%\)/.test(MATH_STYLES),
+      'hat: centers circumflex on base width',
     );
   });
 
@@ -37,5 +45,11 @@ describe('Dirac notation (bra-ket, hat, angles)', () => {
   it('keeps \\\\| as double bar for norms', () => {
     const html = latexToMathHtml(String.raw`\|v\|`, 'norm.tex');
     ok(html.includes('∥'));
+  });
+
+  it('wraps wide \\\\hat base in mj-hat for centered accent layout', () => {
+    const html = latexToMathHtml(String.raw`\[ \hat{\mathrm{WWW}} \]`, 'wide-hat.tex');
+    ok(html.includes('mj-hat'));
+    ok(html.includes('WWW'));
   });
 });
