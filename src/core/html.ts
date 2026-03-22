@@ -229,6 +229,8 @@ export function emitNode(node: ExprNode): string {
       return `<span class="mj-slashed">${emitNodes(node.body)}</span>`;
     case 'cancel':
       return `<span class="mj-cancel">${emitNodes(node.body)}</span>`;
+    case 'phantom':
+      return `<span class="mj-phantom" aria-hidden="true">${emitNodes(node.body)}</span>`;
     case 'aligned': {
       const rowsHtml = node.rows
         .map((row) => {

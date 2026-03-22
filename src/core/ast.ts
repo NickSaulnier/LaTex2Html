@@ -23,6 +23,8 @@ export type ExprNode =
   | { type: 'slashed'; body: ExprNode[] }
   /** `\cancel{…}` — diagonal strike through an expression (cancel package). */
   | { type: 'cancel'; body: ExprNode[] }
+  /** `\phantom{…}` — reserve space as wide/tall as the argument (invisible ink). */
+  | { type: 'phantom'; body: ExprNode[] }
   | { type: 'styled'; style: 'mathrm' | 'text' | 'mathbf' | 'mathcal' | 'mathopMin'; text: string }
   | { type: 'scripts'; base: ExprNode; sub?: ExprNode; sup?: ExprNode }
   /** amsmath-style rows; each row is columns split by `&`, rows by `\\` (cell = `ExprNode[]`). */

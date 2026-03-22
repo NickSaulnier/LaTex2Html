@@ -115,8 +115,8 @@ export class Parser {
         if (env === 'aligned') {
           return this.parseAlignedEnvironment('aligned');
         }
-        if (env === 'align') {
-          return this.parseAlignedEnvironment('align');
+        if (env === 'align' || env === 'align*') {
+          return this.parseAlignedEnvironment(env);
         }
         if (env === 'bmatrix') {
           return this.parseMatrixEnvironment('bmatrix');
@@ -191,6 +191,13 @@ export class Parser {
         const body = this.parseExprList({ stop: 'rbrace' });
         this.expectKind('rbrace');
         return { type: 'cancel', body };
+      }
+      case 'phantom': {
+        this.lex.skipSpace();
+        this.expectKind('lbrace');
+        const body = this.parseExprList({ stop: 'rbrace' });
+        this.expectKind('rbrace');
+        return { type: 'phantom', body };
       }
       case 'mathrm':
       case 'rm': {
@@ -596,7 +603,7 @@ export class Parser {
     }
   }
 
-  private parseAlignedEnvironment(envName: 'aligned' | 'align'): ExprNode {
+  private parseAlignedEnvironment(envName: 'aligned' | 'align' | 'align*'): ExprNode {
     const rows = this.parseTabularMathEnvironment(envName);
     return { type: 'aligned', rows };
   }

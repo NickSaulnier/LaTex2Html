@@ -338,6 +338,12 @@ export const MATH_STYLES = `
   transform-origin: center center;
   pointer-events: none;
 }
+/* \\phantom{…}: same layout box as the argument, no visible ink. */
+.mj-phantom {
+  visibility: hidden;
+  display: inline-block;
+  vertical-align: baseline;
+}
 /* \\left\\langle / \\right\\rangle: match bar delimiters, slightly larger for Dirac bras/kets. */
 .mj-delim-langle,
 .mj-delim-rangle {
