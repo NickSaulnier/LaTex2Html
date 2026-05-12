@@ -1,6 +1,6 @@
 # LaTeX subset → HTML
 
-TypeScript project that turns a **small, documented subset** of LaTeX math into HTML and CSS. There is **no MathJax** and no other third-party math libraries—only the tooling you explicitly add (TypeScript, Webpack, ESLint, Prettier).
+TypeScript project that turns a **small, documented subset** of LaTeX math into HTML and CSS.
 
 ## Allowed npm dependencies
 
