@@ -129,4 +129,4 @@ The CLI is compiled with **`tsc`** (`tsconfig.cli.json`). The demo is bundled wi
 
 ## Expectations
 
-This is **not** a replacement for MathJax’s feature set. It is a small, testable renderer for the subset above, with a clear place to extend the grammar.
+This is a small, testable renderer for the subset above, with a clear place to extend the grammar.
